@@ -1,6 +1,6 @@
 export default defineAppConfig({
   pages: [
-    'pages/index/index'
+    'pages/index/index',
 	"pages/reconcile/detail",
   ],
   window: {

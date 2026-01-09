@@ -3,6 +3,8 @@ import Taro from "@tarojs/taro";
 import { useState, useMemo } from "react";
 import { Tabs, Button, Tag, Cell, Input, TextArea, Toast } from "@nutui/nutui-react-taro";
 import "./index.scss";
+//import "@nutui/nutui-react-taro/dist/style.css";
+
 
 const STATUS = {
   DRAFT: { text: "草稿", type: "primary" },
