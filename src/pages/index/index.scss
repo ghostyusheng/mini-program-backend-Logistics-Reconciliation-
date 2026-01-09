@@ -1,7 +1,90 @@
-.nutui-react-demo {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.page {
+  padding: 14px 14px 88px; // 底部留给 sticky 按钮
+  background: #f6f7fb;
+  min-height: 100vh;
 }
+
+.pageHeader {
+  padding: 10px 4px 14px;
+}
+.h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+.h2 {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.tabs {
+  background: transparent;
+}
+
+.section {
+  padding-top: 10px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cardTitle {
+  font-size: 16px;
+  font-weight: 650;
+}
+.cardSub {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+}
+
+.cardMid {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.muted {
+  color: #888;
+}
+.cardBottom {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+}
+.dot {
+  margin: 0 6px;
+  color: #bbb;
+}
+
+.formCard {
+  background: #fff;
+  border-radius: 14px;
+  padding: 6px 6px 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.btnRow {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.stickyBottom {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: 18px;
+  z-index: 99;
+}
+
