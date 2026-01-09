@@ -2,6 +2,7 @@ export default defineAppConfig({
   pages: [
     'pages/index/index',
 	"pages/reconcile/detail",
+	"pages/reconcile/create",
   ],
   window: {
     backgroundTextStyle: 'light',

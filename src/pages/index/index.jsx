@@ -130,7 +130,7 @@ export default function Index() {
           </View>
 
           <View className="stickyBottom">
-            <Button block type="primary" onClick={() => setTab("create")}>
+            <Button block type="primary" onClick={() => Taro.navigateTo({ url: "/pages/reconcile/create" })}>
               + 创建对账单
             </Button>
           </View>
