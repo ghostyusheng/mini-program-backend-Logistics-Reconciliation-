@@ -23,7 +23,7 @@ function todayISO() {
 function genInvoiceNo() {
   // 你可以换成你们自己的规则（比如 GSAM + 日期 + 自增）
   const ts = Date.now().toString().slice(-6);
-  return `INVE2GSAM${ts}`;
+  return `GSAM${ts}`;
 }
 
 function toNum(v) {
@@ -40,16 +40,16 @@ export default function ReconcileCreate() {
   // ========== 默认值（你以后可从 profile / 客户档案带入） ==========
   const defaultSeller = useMemo(
     () => ({
-      name: "",
+      name: "LONG LINK TRADING LTD",
       address:
-        "",
+        "ADD: 3 ZHONG SHAN 3RD STREET LUING, PLAZA ZHONG SHAN ZHONG SHAN CHINA, 528400",
     }),
     []
   );
 
   const defaultLogistics = useMemo(
     () => ({
-      from: "",
+      from: "Yantian, China",
       to: "Dublin, Ireland",
       transport: "By sea",
     }),
@@ -61,11 +61,11 @@ export default function ReconcileCreate() {
     title: "周期对账单",
     seller: defaultSeller,
     buyer: {
-      toName: "",
-      toAddress: "",
-      toTel: "",
-      vatNo: "",
-      eoriNo: "",
+      toName: "Bite of China",
+      toAddress: "59 George's Street Lower, Dún Laoghaire, Dublin A96 EW71",
+      toTel: "01 2311726",
+      vatNo: "4145006KH",
+      eoriNo: "4145006KH",
     },
     invoice: {
       invoiceNo: genInvoiceNo(),
@@ -156,7 +156,8 @@ export default function ReconcileCreate() {
     setShowItemModal(false);
   };
 
-  const saveDraftLocal = () => {
+    const saveDraftLocal = async () => {
+    // ========== basic validation ==========
     if (!doc.buyer.toName.trim()) {
       Toast.show({ content: "请填写 TO（收货人）" });
       return;
@@ -170,20 +171,72 @@ export default function ReconcileCreate() {
       return;
     }
 
-    const id = `R-${Date.now()}`;
-    const payload = { id, ...doc, createdAt: new Date().toISOString() };
+    // ========== payload mapping (UI -> API) ==========
+    const payload = {
+      customer_id: "f8b43cb1-fbd9-4918-9506-c4b1bf33de78", // TODO: later load from login/profile
+      exporter_jsonb: {
+        name: doc.seller?.name || "",
+        address: doc.seller?.address || "",
+      },
+      to_company: doc.buyer?.toName || "",
+      to_tel: doc.buyer?.toTel || "",
+      to_vat_no: doc.buyer?.vatNo || "",
+      eori_no: doc.buyer?.eoriNo || "",
+      invoice_no: doc.invoice?.invoiceNo || "",
+      currency: doc.invoice?.currency || "",
+      trade_terms: doc.invoice?.tradeTerms || "",
+      logistics_to: doc.logistics?.to || "",
+      logistics_transport: doc.logistics?.transport || "",
+      logistics_from: doc.logistics?.from || "",
+      items: (doc.items || []).map((it) => ({
+        marks_nos: it.marks || "",
+        tracking_no: it.trackingNo || "",
+        product_name: it.productName || "",
+        material: it.material || "",
+        hs_code: it.hsCode || "",
+        units_pcs: toNum(it.unitsPcs),
+        packages: toNum(it.quantityPackages) || 1,
+        unit_price: Number(money(it.unitPriceCny)),
+        net_weight: toNum(it.netWeight) || null,
+        gross_weight: toNum(it.grossWeight) || null,
+        cbm: toNum(it.cbm) || null,
+        barcode: it.barcode || "",
+      })),
+    };
 
-    // V1：本地保存，后面你接 API 替换这里
-    const list = Taro.getStorageSync("reconciles") || [];
-    list.unshift(payload);
-    Taro.setStorageSync("reconciles", list);
+    // ========== POST ==========
+    try {
+      Toast.show({ content: "保存中..." });
 
-    Toast.show({ content: "已保存 ✅" });
+      const res = await Taro.request({
+        url: "http://127.0.0.1:8000/v1/reconciles",
+        method: "POST",
+        header: { "Content-Type": "application/json" },
+        data: payload,
+      });
 
-    // 保存后跳详情页
-    Taro.navigateTo({
-      url: `/pages/reconcile/detail?id=${encodeURIComponent(id)}`,
-    });
+      // FastAPI 常见：成功时 200/201，失败时也可能是 200 但带 detail
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        const data = res.data || {};
+        const id = data.id || data.reconcile_id || data.uuid;
+
+        Toast.show({ content: "已保存 ✅" });
+
+        // 保存后跳详情页（优先用后端返回 id）
+        Taro.navigateTo({
+          url: `/pages/reconcile/detail?id=${encodeURIComponent(id || "")}`,
+        });
+        return;
+      }
+
+      // 非 2xx
+      const errMsg =
+        (res.data && (res.data.detail || res.data.message)) ||
+        `保存失败（HTTP ${res.statusCode}）`;
+      Toast.show({ content: String(errMsg) });
+    } catch (e) {
+      Toast.show({ content: `网络错误：${String(e?.message || e)}` });
+    }
   };
 
   // ========== UI ==========
@@ -463,7 +516,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, buyer: { ...p.buyer, toAddress: v } }))
             }
-            placeholder="如: 59 Georges Street Lower Dún Laoghaire Dublin A96 EW71\n完整英文收货地址"
+            placeholder='例如: "59 Georges Street Lower, Dún Laoghaire, Dublin A96 EW71完整英文收货地址'
             rows={3}
           />
         </Cell>
