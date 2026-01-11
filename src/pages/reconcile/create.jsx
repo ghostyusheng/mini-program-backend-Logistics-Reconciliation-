@@ -23,7 +23,7 @@ function todayISO() {
 function genInvoiceNo() {
   // 你可以换成你们自己的规则（比如 GSAM + 日期 + 自增）
   const ts = Date.now().toString().slice(-6);
-  return `GSAM${ts}`;
+  return `INVE2GSAM${ts}`;
 }
 
 function toNum(v) {
@@ -40,16 +40,16 @@ export default function ReconcileCreate() {
   // ========== 默认值（你以后可从 profile / 客户档案带入） ==========
   const defaultSeller = useMemo(
     () => ({
-      name: "LONG LINK TRADING LTD",
+      name: "",
       address:
-        "ADD: 3 ZHONG SHAN 3RD STREET LUING, PLAZA ZHONG SHAN ZHONG SHAN CHINA, 528400",
+        "",
     }),
     []
   );
 
   const defaultLogistics = useMemo(
     () => ({
-      from: "Yantian, China",
+      from: "",
       to: "Dublin, Ireland",
       transport: "By sea",
     }),
@@ -61,11 +61,11 @@ export default function ReconcileCreate() {
     title: "周期对账单",
     seller: defaultSeller,
     buyer: {
-      toName: "Bite of China",
-      toAddress: "59 George's Street Lower, Dún Laoghaire, Dublin A96 EW71",
-      toTel: "01 2311726",
-      vatNo: "4145006KH",
-      eoriNo: "4145006KH",
+      toName: "",
+      toAddress: "",
+      toTel: "",
+      vatNo: "",
+      eoriNo: "",
     },
     invoice: {
       invoiceNo: genInvoiceNo(),
@@ -190,7 +190,7 @@ export default function ReconcileCreate() {
   return (
     <View className="page">
       <View className="header">
-        <Text className="h1">创建对账单</Text>
+        <Text className="h1">创建运输货物清单</Text>
         <Text className="h2">按 Commercial Invoice & Packing List 填写</Text>
       </View>
 
@@ -413,7 +413,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, seller: { ...p.seller, name: v } }))
             }
-            placeholder="公司名"
+            placeholder='例如: "LONG LINK TRADING LTD"（出口商公司全称）'
           />
         </Cell>
 
@@ -423,7 +423,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, seller: { ...p.seller, address: v } }))
             }
-            placeholder="地址"
+            placeholder='例如: "ADD: 3 ZHONG SHAN 3RD STREET, ZHONG SHAN, CHINA, 528400"\n英文地址，按商业发票格式'
             rows={3}
           />
         </Cell>
@@ -454,7 +454,7 @@ export default function ReconcileCreate() {
           <Input
             value={doc.buyer.toName}
             onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, toName: v } }))}
-            placeholder="收货人公司名"
+            placeholder='例如: "Bite of China Ltd"（收货人公司全称）'
           />
         </Cell>
         <Cell title="ADD">
@@ -463,7 +463,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, buyer: { ...p.buyer, toAddress: v } }))
             }
-            placeholder="收货地址"
+            placeholder="如: 59 Georges Street Lower Dún Laoghaire Dublin A96 EW71\n完整英文收货地址"
             rows={3}
           />
         </Cell>
@@ -471,14 +471,14 @@ export default function ReconcileCreate() {
           <Input
             value={doc.buyer.toTel}
             onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, toTel: v } }))}
-            placeholder="电话"
+            placeholder='+353 1 2311726（固定电话或手机）'
           />
         </Cell>
         <Cell title="VAT NO.">
           <Input
             value={doc.buyer.vatNo}
             onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, vatNo: v } }))}
-            placeholder="VAT（可选）"
+            placeholder='例如: "IE4145006KH"（欧盟VAT，如适用）'
           />
         </Cell>
 
@@ -489,7 +489,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, invoice: { ...p.invoice, invoiceNo: v } }))
             }
-            placeholder="发票号"
+            placeholder='例如: "GSAM240109001"（前缀+日期+流水号）'
           />
         </Cell>
         <Cell title="INVOICE DATE">
@@ -498,7 +498,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, invoice: { ...p.invoice, invoiceDate: v } }))
             }
-            placeholder="YYYY-MM-DD"
+            placeholder='例如: "2026-01-11"（YYYY-MM-DD）'
           />
         </Cell>
         <Cell title="TRADE TERMS">
@@ -507,14 +507,14 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, invoice: { ...p.invoice, tradeTerms: v } }))
             }
-            placeholder="FOB / CIF / EXW"
+            placeholder='例如: "FOB / CIF / EXW / DAP"'
           />
         </Cell>
         <Cell title="EORI NO.">
           <Input
             value={doc.buyer.eoriNo}
             onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, eoriNo: v } }))}
-            placeholder="公司客户填写（可选）"
+            placeholder='例如: "IE4145006KH"（EORI清关号，如适用）'
           />
         </Cell>
         <Cell title="CURRENCY">
@@ -523,7 +523,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, invoice: { ...p.invoice, currency: v } }))
             }
-            placeholder="CNY / EUR"
+            placeholder='例如: "CNY / EUR / USD"（ISO货币代码）'
           />
         </Cell>
 
@@ -552,14 +552,14 @@ export default function ReconcileCreate() {
           <Input
             value={doc.logistics.from}
             onChange={(v) => setDoc((p) => ({ ...p, logistics: { ...p.logistics, from: v } }))}
-            placeholder="发货地"
+            placeholder='例如: "Yantian, China"（起运港/城市+国家）'
           />
         </Cell>
         <Cell title="To">
           <Input
             value={doc.logistics.to}
             onChange={(v) => setDoc((p) => ({ ...p, logistics: { ...p.logistics, to: v } }))}
-            placeholder="目的地"
+            placeholder='例如: "Dublin, Ireland"（目的港/城市+国家）'
           />
         </Cell>
         <Cell title="Transport">
@@ -568,7 +568,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, logistics: { ...p.logistics, transport: v } }))
             }
-            placeholder="By sea / By air"
+            placeholder='例如: "By Sea / By Air / Express"'
           />
         </Cell>
 
@@ -738,4 +738,5 @@ export default function ReconcileCreate() {
     </View>
   );
 }
+
 
