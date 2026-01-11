@@ -181,3 +181,80 @@
   font-size: 13px;
 }
 
+
+.itemPopup {
+  height: 82vh; // 关键：限制高度，给手机留空间
+  display: flex;
+  flex-direction: column;
+}
+
+.popupHeader,
+.popupFooter {
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.stickyTop {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.stickyBottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.popupBody {
+  flex: 1;
+  padding: 12px 14px;
+}
+
+.scrollY {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field.full {
+  grid-column: 1 / -1; // 占满一行
+}
+
+.label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.calcRow {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted {
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+}
+
+.strong {
+  font-weight: 600;
+}
+
