@@ -15,6 +15,9 @@ import {
 } from "@nutui/nutui-react-taro";
 import "./detail.scss";
 
+Taro.setStorageSync("x_role", "admin");     // 管理员
+// Taro.setStorageSync("x_role", "customer");  // 客户
+
 /**
  * Reconcile Detail Page (方案A：同页查看 + 同页编辑)
  * API:
