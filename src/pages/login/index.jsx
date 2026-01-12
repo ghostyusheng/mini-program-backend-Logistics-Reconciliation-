@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Button, Input } from "@nutui/nutui-react-taro";
 import "./index.scss";
 
-import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
+import { toast as Toast, toastLoading, toastHideLoading } from "../../utils/toast";
 /**
  * Login Page (V1: no public registration)
  *
@@ -44,11 +44,11 @@ export default function LoginPage() {
     const p = String(password || "").trim();
 
     if (!u) {
-      toast("缺少用户名/客户代码");
+      Toast("缺少用户名/客户代码");
       return;
     }
     if (!p) {
-      toast("请输入密码");
+      Toast("请输入密码");
       return;
     }
 
@@ -79,13 +79,30 @@ export default function LoginPage() {
       Taro.setStorageSync("x_role", role);
       if (customerId) Taro.setStorageSync("customer_id", customerId);
 
-      toast("登录成功 ✅");
+      Taro.showModal({
+        title: `操作成功`,
+        content: '已完成处理',
+        showCancel: false, // 只留“确定”
+        confirmText: '确定',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.switchTab({
+              url: '/pages/index/index'
+            })
+          }
+        }
+      })
 
       // 进入列表页（按你项目路由修改）
       Taro.reLaunch({ url: "/pages/reconcile/index" });
     } catch (e) {
-      console.error(e);
-      Toast.show({ content: `登录失败：${e?.message || e}` });
+
+      Taro.showModal({
+        title: "操作失败：账号/密码错误 \n " + (e?.message || e),
+        content: '已完成处理',
+        showCancel: false, // 只留“确定”
+        confirmText: '确定',
+      })
     } finally {
       toastHideLoading();
       setLoading(false);

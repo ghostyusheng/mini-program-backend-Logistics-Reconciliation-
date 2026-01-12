@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Button, Tag } from "@nutui/nutui-react-taro";
 import "./index.scss";
 
-import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
+import { toast as Toast, toastLoading, toastHideLoading } from "../../utils/toast";
 /**
  * Reconcile List Page
  * API:
