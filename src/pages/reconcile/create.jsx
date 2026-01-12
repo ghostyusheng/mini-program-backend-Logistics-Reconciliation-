@@ -515,7 +515,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, buyer: { ...p.buyer, toAddress: v } }))
             }
-            placeholder='例如: "59 George\'s Street Lower, Dún Laoghaire, Dublin A96 EW71"\n完整英文收货地址'
+            placeholder='例如: "59 Georges Street Lower, Dún Laoghaire, Dublin A96 EW71"\n完整英文收货地址'
             rows={3}
           />
         </Cell>
