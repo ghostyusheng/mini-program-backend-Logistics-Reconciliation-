@@ -1,39 +1,54 @@
-import Taro from "@tarojs/taro";
+import Taro, { useDidShow, useRouter } from "@tarojs/taro";
 import { View, Text } from "@tarojs/components";
-import React, { useState } from "react";
-import { Button, Input, Toast } from "@nutui/nutui-react-taro";
+import React, { useMemo, useState } from "react";
+import { Button, Input } from "@nutui/nutui-react-taro";
 import "./index.scss";
 
+import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
 /**
  * Login Page (V1: no public registration)
  *
- * - 客户账号由管理员派发（username + password）
- * - 登录成功后保存 token / x_role / customer_id
+ * 兼容“只要一个密码框”的派发方式：
+ * - 你发给客户一个登录链接/二维码：/pages/login/index?u=test01
+ * - 页面读取 query.u 作为 username（不让客户手动输），只显示密码输入框
+ * - 如果没有 u 参数（比如管理员自己开页面），则显示 username + password 两个输入框
  *
  * API（建议）:
  *   POST http://127.0.0.1:8000/v1/auth/login
  *   body: { "username": "test01", "password": "xxxx" }
  *   response(建议):
  *   { "token": "...", "user_id": "...", "role": "admin|customer", "customer_id": "uuid|null" }
+ *
+ * 前端保存：
+ *   token / x_role / customer_id
  */
 
 const API_BASE = "http://127.0.0.1:8000";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const router = useRouter();
+  const uFromQuery = router?.params?.u || router?.params?.username || "";
+
+  const [username, setUsername] = useState(uFromQuery);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const lockedUsername = useMemo(() => !!uFromQuery, [uFromQuery]);
+
+  useDidShow(() => {
+    if (uFromQuery) setUsername(uFromQuery);
+  });
 
   const submit = async () => {
     const u = String(username || "").trim();
     const p = String(password || "").trim();
 
     if (!u) {
-      Toast.show({ content: "请输入用户名" });
+      toast("缺少用户名/客户代码");
       return;
     }
     if (!p) {
-      Toast.show({ content: "请输入密码" });
+      toast("请输入密码");
       return;
     }
 
@@ -64,7 +79,7 @@ export default function LoginPage() {
       Taro.setStorageSync("x_role", role);
       if (customerId) Taro.setStorageSync("customer_id", customerId);
 
-      Toast.show({ content: "登录成功 ✅" });
+      toast("登录成功 ✅");
 
       // 进入列表页（按你项目路由修改）
       Taro.reLaunch({ url: "/pages/reconcile/index" });
@@ -72,6 +87,7 @@ export default function LoginPage() {
       console.error(e);
       Toast.show({ content: `登录失败：${e?.message || e}` });
     } finally {
+      toastHideLoading();
       setLoading(false);
     }
   };
@@ -82,15 +98,23 @@ export default function LoginPage() {
         <Text className="title">登录</Text>
         <Text className="sub">无需注册，由管理员派发账号</Text>
 
-        <View className="field">
-          <Text className="label">Username</Text>
-          <Input
-            value={username}
-            onChange={(v) => setUsername(v)}
-            placeholder='例如: "test01"'
-            disabled={loading}
-          />
-        </View>
+        {!lockedUsername ? (
+          <View className="field">
+            <Text className="label">Username / Customer Code</Text>
+            <Input
+              value={username}
+              onChange={(v) => setUsername(v)}
+              placeholder='例如: "test01"'
+              disabled={loading}
+            />
+          </View>
+        ) : (
+          <View className="locked">
+            <Text className="label">Account</Text>
+            <Text className="lockedValue">{username}</Text>
+            <Text className="hint">（链接已绑定账号，只需输入密码）</Text>
+          </View>
+        )}
 
         <View className="field">
           <Text className="label">Password</Text>
@@ -110,7 +134,8 @@ export default function LoginPage() {
         </View>
 
         <View className="footer">
-          <Text className="tiny">忘记密码请联系管理员重置</Text>
+          <Text className="tiny">小提示：你可以给客户发一个带账号的链接：</Text>
+          <Text className="mono">/pages/login/index?u=test01</Text>
         </View>
       </View>
     </View>

@@ -1,22 +1,10 @@
-import Taro, {
-  useDidShow,
-  usePullDownRefresh,
-  useRouter,
-} from "@tarojs/taro";
+import Taro, { useDidShow, usePullDownRefresh, useRouter } from "@tarojs/taro";
 import { View, Text } from "@tarojs/components";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Button,
-  Tag,
-  Toast,
-  Popup,
-  Input,
-  TextArea,
-} from "@nutui/nutui-react-taro";
+import { Button, Tag, Popup, Input, TextArea } from "@nutui/nutui-react-taro";
 import "./detail.scss";
 
-Taro.setStorageSync("x_role", "admin");     // 管理员
-// Taro.setStorageSync("x_role", "customer");  // 客户
+import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
 
 /**
  * Reconcile Detail Page (方案A：同页查看 + 同页编辑)
@@ -24,8 +12,8 @@ Taro.setStorageSync("x_role", "admin");     // 管理员
  *   GET    /v1/reconciles/:id
  *   PATCH  /v1/reconciles/:id
  *
- * Header (V1 临时)：
- *   X-ROLE: admin | customer
+ * Auth:
+ *   Authorization: Bearer <token>
  */
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -51,6 +39,14 @@ function toNum(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function getToken() {
+  return Taro.getStorageSync("token") || "";
+}
+
+function getRole() {
+  return Taro.getStorageSync("x_role") || "customer";
+}
+
 function isAdmin(role) {
   return String(role || "").toLowerCase() === "admin";
 }
@@ -59,20 +55,17 @@ export default function ReconcileDetail() {
   const router = useRouter();
   const id = router?.params?.id;
 
-  // V1：临时用 storage 或常量模拟角色
-  const role = useMemo(() => {
-    return Taro.getStorageSync("x_role") || "customer";
-  }, []);
+  const role = useMemo(() => getRole(), []);
   const admin = useMemo(() => isAdmin(role), [role]);
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
 
-  // ====== 同页编辑相关 ======
+  // ====== 同页编辑 ======
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState(null);
 
-  // Item Popup（复用你之前的三列布局）
+  // ====== Item Popup ======
   const [showItemModal, setShowItemModal] = useState(false);
   const [editingIndex, setEditingIndex] = useState(-1);
 
@@ -82,11 +75,9 @@ export default function ReconcileDetail() {
     product_name: "",
     material: "",
     hs_code: "",
-
     units_pcs: "1",
     packages: "1",
     unit_price: "0",
-
     net_weight: "",
     gross_weight: "",
     cbm: "",
@@ -96,6 +87,11 @@ export default function ReconcileDetail() {
   const [itemForm, setItemForm] = useState(emptyItem);
 
   const currency = useMemo(() => data?.currency || "CNY", [data?.currency]);
+
+  const authHeader = useMemo(() => {
+    const token = getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
 
   const fetchDetail = useCallback(
     async (opts = { silent: false }) => {
@@ -108,16 +104,14 @@ export default function ReconcileDetail() {
         const res = await Taro.request({
           url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}`,
           method: "GET",
-          header: { "Content-Type": "application/json" },
+          header: { "Content-Type": "application/json", ...authHeader },
         });
 
         const status = res?.statusCode ?? 0;
         if (status < 200 || status >= 300) {
           throw new Error(
             `HTTP ${status}: ${
-              typeof res?.data === "string"
-                ? res.data
-                : JSON.stringify(res?.data)
+              typeof res?.data === "string" ? res.data : JSON.stringify(res?.data)
             }`
           );
         }
@@ -125,7 +119,7 @@ export default function ReconcileDetail() {
         setData(res?.data || null);
       } catch (e) {
         console.error(e);
-        Toast.show({ content: `获取详情失败：${e?.message || e}` });
+        toast(`获取详情失败：${e?.message || e}`);
       } finally {
         if (!silent) setLoading(false);
         try {
@@ -133,7 +127,7 @@ export default function ReconcileDetail() {
         } catch (_) {}
       }
     },
-    [id]
+    [id, authHeader]
   );
 
   useDidShow(() => {
@@ -144,18 +138,16 @@ export default function ReconcileDetail() {
     fetchDetail({ silent: true });
   });
 
-  const goBack = () => {
-    Taro.navigateBack();
-  };
+  const goBack = () => Taro.navigateBack();
 
   const enterEdit = () => {
     if (!data) return;
+
     if (!data.editable && !admin) {
-      Toast.show({ content: "该对账单已锁定，无法编辑" });
+      toast("该对账单已锁定，无法编辑");
       return;
     }
 
-    // 初始化表单（snake_case 原样保持，直接 PATCH）
     setForm({
       exporter_jsonb: data.exporter_jsonb || {},
       to_company: data.to_company || "",
@@ -180,6 +172,7 @@ export default function ReconcileDetail() {
         cbm: it.cbm === null ? "" : String(it.cbm),
       })),
     });
+
     setEditMode(true);
   };
 
@@ -191,18 +184,9 @@ export default function ReconcileDetail() {
   const patchSave = async () => {
     if (!form) return;
 
-    if (!form.to_company?.trim()) {
-      Toast.show({ content: "请填写 TO（收货人公司）" });
-      return;
-    }
-    if (!form.invoice_no?.trim()) {
-      Toast.show({ content: "请填写 INVOICE NO." });
-      return;
-    }
-    if (!form.items || form.items.length === 0) {
-      Toast.show({ content: "请至少保留 1 个 Item" });
-      return;
-    }
+    if (!form.to_company?.trim()) return toast("请填写 TO（收货人公司）");
+    if (!form.invoice_no?.trim()) return toast("请填写 INVOICE NO.");
+    if (!form.items || form.items.length === 0) return toast("请至少保留 1 个 Item");
 
     const payload = {
       exporter_jsonb: form.exporter_jsonb,
@@ -235,82 +219,78 @@ export default function ReconcileDetail() {
     };
 
     try {
-      Toast.show({ content: "保存中..." });
-
+      toastLoading("保存中...");
       const res = await Taro.request({
         url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}`,
         method: "PATCH",
         data: payload,
-        header: {
-          "Content-Type": "application/json",
-          "X-ROLE": role,
-        },
+        header: { "Content-Type": "application/json", ...authHeader },
       });
 
       const status = res?.statusCode ?? 0;
       if (status < 200 || status >= 300) {
         throw new Error(
           `HTTP ${status}: ${
-            typeof res?.data === "string"
-              ? res.data
-              : JSON.stringify(res?.data)
+            typeof res?.data === "string" ? res.data : JSON.stringify(res?.data)
           }`
         );
       }
 
-      Toast.show({ content: "已保存 ✅" });
+      toast("已保存 ✅");
       setData(res?.data || null);
       setEditMode(false);
       setForm(null);
     } catch (e) {
       console.error(e);
-      Toast.show({ content: `保存失败：${e?.message || e}` });
+      toast(`保存失败：${e?.message || e}`);
+    } finally {
+      toastHideLoading();
     }
   };
 
+  // admin: lock/unlock
   const toggleLock = async () => {
     if (!admin) return;
     if (!data) return;
 
     const nextEditable = !data.editable;
-    try {
-      Toast.show({ content: nextEditable ? "解锁中..." : "锁定中..." });
 
+    try {
+      toastLoading(nextEditable ? "解锁中..." : "锁定中...");
       const res = await Taro.request({
         url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}`,
         method: "PATCH",
         data: { editable: nextEditable },
-        header: {
-          "Content-Type": "application/json",
-          "X-ROLE": role,
-        },
+        header: { "Content-Type": "application/json", ...authHeader },
       });
 
       const status = res?.statusCode ?? 0;
       if (status < 200 || status >= 300) {
         throw new Error(
           `HTTP ${status}: ${
-            typeof res?.data === "string"
-              ? res.data
-              : JSON.stringify(res?.data)
+            typeof res?.data === "string" ? res.data : JSON.stringify(res?.data)
           }`
         );
       }
 
       setData(res?.data || null);
 
+      // 如果锁定，顺带退出编辑
       if (!nextEditable) {
         setEditMode(false);
         setForm(null);
       }
-      Toast.show({ content: nextEditable ? "已解锁 ✅" : "已锁定 ✅" });
+
+      toast(nextEditable ? "已解锁 ✅" : "已锁定 ✅");
     } catch (e) {
       console.error(e);
-      Toast.show({ content: `操作失败：${e?.message || e}` });
+      toast(`操作失败：${e?.message || e}`);
+    } finally {
+      toastHideLoading();
     }
   };
 
-  // ====== Items actions (editMode) ======
+  // ====== items operations in editMode ======
   const openAddItem = () => {
     setEditingIndex(-1);
     setItemForm({ ...emptyItem, packages: "1" });
@@ -340,18 +320,9 @@ export default function ReconcileDetail() {
   };
 
   const saveItem = () => {
-    if (!itemForm.product_name?.trim()) {
-      Toast.show({ content: "请填写 Product Name" });
-      return;
-    }
-    if (toNum(itemForm.units_pcs) <= 0) {
-      Toast.show({ content: "UNITS-PCS 需要 > 0" });
-      return;
-    }
-    if (toNum(itemForm.unit_price) <= 0) {
-      Toast.show({ content: "Unit Price 需要 > 0" });
-      return;
-    }
+    if (!itemForm.product_name?.trim()) return toast("请填写 Product Name");
+    if (toNum(itemForm.units_pcs) <= 0) return toast("UNITS-PCS 需要 > 0");
+    if (toNum(itemForm.unit_price) <= 0) return toast("Unit Price 需要 > 0");
 
     const nextItem = { ...itemForm, packages: itemForm.packages || "1" };
 
@@ -425,6 +396,7 @@ export default function ReconcileDetail() {
 
       {!editMode ? (
         <>
+          {/* ====== View Mode ====== */}
           <View className="card">
             <View className="cardTop">
               <Text className="cardTitle">META</Text>
@@ -535,11 +507,7 @@ export default function ReconcileDetail() {
           <View className="card">
             <View className="cardTop">
               <Text className="cardTitle">ITEMS</Text>
-              <Button
-                size="small"
-                type="default"
-                onClick={() => fetchDetail({ silent: false })}
-              >
+              <Button size="small" type="default" onClick={() => fetchDetail({ silent: false })}>
                 刷新
               </Button>
             </View>
@@ -551,8 +519,7 @@ export default function ReconcileDetail() {
             ) : (
               <View className="itemList">
                 {(data.items || []).map((it, idx) => {
-                  const amount =
-                    Number(it.units_pcs ?? 0) * Number(it.unit_price ?? 0);
+                  const amount = Number(it.units_pcs ?? 0) * Number(it.unit_price ?? 0);
                   return (
                     <View key={idx} className="itemCard">
                       <View className="itemTop">
@@ -565,37 +532,29 @@ export default function ReconcileDetail() {
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">HS:</Text>{" "}
-                        <Text>{vOrDash(it.hs_code)}</Text>
+                        <Text className="muted">HS:</Text> <Text>{vOrDash(it.hs_code)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Material:</Text>{" "}
-                        <Text>{vOrDash(it.material)}</Text>
+                        <Text className="muted">Material:</Text> <Text>{vOrDash(it.material)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Marks:</Text>{" "}
-                        <Text>{vOrDash(it.marks_nos)}</Text>
+                        <Text className="muted">Marks:</Text> <Text>{vOrDash(it.marks_nos)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Tracking:</Text>{" "}
-                        <Text>{vOrDash(it.tracking_no)}</Text>
+                        <Text className="muted">Tracking:</Text> <Text>{vOrDash(it.tracking_no)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Units:</Text>{" "}
-                        <Text>{vOrDash(it.units_pcs)}</Text>
+                        <Text className="muted">Units:</Text> <Text>{vOrDash(it.units_pcs)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Packages:</Text>{" "}
-                        <Text>{vOrDash(it.packages)}</Text>
+                        <Text className="muted">Packages:</Text> <Text>{vOrDash(it.packages)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Unit Price:</Text>{" "}
-                        <Text>{money(it.unit_price)}</Text>
+                        <Text className="muted">Unit Price:</Text> <Text>{money(it.unit_price)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Total:</Text>{" "}
-                        <Text className="strong">{money(amount)}</Text>
+                        <Text className="muted">Total:</Text> <Text className="strong">{money(amount)}</Text>
                       </View>
 
                       <View className="itemMeta">
@@ -604,14 +563,12 @@ export default function ReconcileDetail() {
                           {vOrDash(it.net_weight)} / {vOrDash(it.gross_weight)}
                         </Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">CBM:</Text>{" "}
-                        <Text>{vOrDash(it.cbm)}</Text>
+                        <Text className="muted">CBM:</Text> <Text>{vOrDash(it.cbm)}</Text>
                       </View>
 
                       {it.barcode ? (
                         <View className="itemMeta">
-                          <Text className="muted">Barcode:</Text>{" "}
-                          <Text>{vOrDash(it.barcode)}</Text>
+                          <Text className="muted">Barcode:</Text> <Text>{vOrDash(it.barcode)}</Text>
                         </View>
                       ) : null}
                     </View>
@@ -627,6 +584,7 @@ export default function ReconcileDetail() {
         </>
       ) : (
         <>
+          {/* ====== Edit Mode ====== */}
           <View className="card">
             <View className="cardTop">
               <Text className="cardTitle">EDIT MODE</Text>
@@ -659,7 +617,7 @@ export default function ReconcileDetail() {
                 <TextArea
                   value={form.to_address}
                   onChange={(v) => setForm((p) => ({ ...p, to_address: v }))}
-                  placeholder='例如: "59 Georges Street Lower, Dublin A96 EW71"'
+                  placeholder='例如: "59 Georges Street LoweDublin A96 EW71"'
                   rows={3}
                 />
               </View>
@@ -752,9 +710,7 @@ export default function ReconcileDetail() {
                 <Text className="label">Transport</Text>
                 <Input
                   value={form.logistics_transport}
-                  onChange={(v) =>
-                    setForm((p) => ({ ...p, logistics_transport: v }))
-                  }
+                  onChange={(v) => setForm((p) => ({ ...p, logistics_transport: v }))}
                   placeholder="By Sea / By Air / Express"
                 />
               </View>
@@ -789,22 +745,17 @@ export default function ReconcileDetail() {
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">HS:</Text>{" "}
-                        <Text>{vOrDash(it.hs_code)}</Text>
+                        <Text className="muted">HS:</Text> <Text>{vOrDash(it.hs_code)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Material:</Text>{" "}
-                        <Text>{vOrDash(it.material)}</Text>
+                        <Text className="muted">Material:</Text> <Text>{vOrDash(it.material)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Units:</Text>{" "}
-                        <Text>{vOrDash(it.units_pcs)}</Text>
+                        <Text className="muted">Units:</Text> <Text>{vOrDash(it.units_pcs)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Packages:</Text>{" "}
-                        <Text>{vOrDash(it.packages)}</Text>
+                        <Text className="muted">Packages:</Text> <Text>{vOrDash(it.packages)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Total:</Text>{" "}
-                        <Text className="strong">{money(amount)}</Text>
+                        <Text className="muted">Total:</Text> <Text className="strong">{money(amount)}</Text>
                       </View>
 
                       <View className="itemActions">
@@ -829,13 +780,12 @@ export default function ReconcileDetail() {
           </View>
 
           <View className="footerHint">
-            <Text className="muted">
-              角色：{admin ? "Admin" : "Customer"}（Header: X-ROLE）
-            </Text>
+            <Text className="muted">角色：{admin ? "Admin" : "Customer"}</Text>
           </View>
         </>
       )}
 
+      {/* ====== Item Modal ====== */}
       <Popup
         visible={showItemModal}
         position="bottom"
@@ -901,7 +851,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Units (pcs)*</Text>
               <Input
-                type="digit"
+                type="number"
                 value={itemForm.units_pcs}
                 onChange={(v) => setItemForm((p) => ({ ...p, units_pcs: v }))}
                 placeholder="例如: 10"
@@ -911,7 +861,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Packages</Text>
               <Input
-                type="digit"
+                type="number"
                 value={itemForm.packages}
                 onChange={(v) => setItemForm((p) => ({ ...p, packages: v }))}
                 placeholder="默认 1"
@@ -921,7 +871,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Unit Price*</Text>
               <Input
-                type="digit"
+                type="number"
                 value={itemForm.unit_price}
                 onChange={(v) => setItemForm((p) => ({ ...p, unit_price: v }))}
                 placeholder="例如: 299.99"
@@ -931,7 +881,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Net Wt (kg)</Text>
               <Input
-                type="digit"
+                type="number"
                 value={itemForm.net_weight}
                 onChange={(v) => setItemForm((p) => ({ ...p, net_weight: v }))}
                 placeholder="可留空"
@@ -941,7 +891,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Gross Wt (kg)</Text>
               <Input
-                type="digit"
+                type="number"
                 value={itemForm.gross_weight}
                 onChange={(v) => setItemForm((p) => ({ ...p, gross_weight: v }))}
                 placeholder="可留空"
@@ -951,7 +901,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">CBM (m³)</Text>
               <Input
-                type="digit"
+                type="number"
                 value={itemForm.cbm}
                 onChange={(v) => setItemForm((p) => ({ ...p, cbm: v }))}
                 placeholder="可留空"

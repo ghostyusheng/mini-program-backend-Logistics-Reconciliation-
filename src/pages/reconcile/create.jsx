@@ -1,15 +1,13 @@
 import Taro from "@tarojs/taro";
 import { View, Text } from "@tarojs/components";
 import React, { useMemo, useState } from "react";
-import {
-  Button,
+import { Button,
+import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
   Cell,
   Input,
   TextArea,
   Tag,
-  Popup,
-  Toast,
-} from "@nutui/nutui-react-taro";
+  Popup, } from "@nutui/nutui-react-taro";
 import "./create.scss";
 
 function todayISO() {
@@ -132,15 +130,15 @@ export default function ReconcileCreate() {
 
   const saveItem = () => {
     if (!itemForm.productName.trim()) {
-      Toast.show({ content: "请填写 Product Name" });
+      toast("请填写 Product Name");
       return;
     }
     if (toNum(itemForm.unitsPcs) <= 0) {
-      Toast.show({ content: "UNITS-PCS 需要 > 0" });
+      toast("UNITS-PCS 需要 > 0");
       return;
     }
     if (toNum(itemForm.unitPriceCny) <= 0) {
-      Toast.show({ content: "Unit Price 需要 > 0" });
+      toast("Unit Price 需要 > 0");
       return;
     }
 
@@ -159,15 +157,15 @@ export default function ReconcileCreate() {
     const saveDraftLocal = async () => {
     // ========== basic validation ==========
     if (!doc.buyer.toName.trim()) {
-      Toast.show({ content: "请填写 TO（收货人）" });
+      toast("请填写 TO（收货人）");
       return;
     }
     if (!doc.invoice.invoiceNo.trim()) {
-      Toast.show({ content: "请填写 INVOICE NO." });
+      toast("请填写 INVOICE NO.");
       return;
     }
     if (doc.items.length === 0) {
-      Toast.show({ content: "请至少添加 1 个 Item" });
+      toast("请至少添加 1 个 Item");
       return;
     }
 
@@ -206,12 +204,12 @@ export default function ReconcileCreate() {
 
     // ========== POST ==========
     try {
-      Toast.show({ content: "保存中..." });
+      toastLoading("保存中...");
 
       const res = await Taro.request({
         url: "http://127.0.0.1:8000/v1/reconciles",
         method: "POST",
-        header: { "Content-Type": "application/json" },
+        header: authHeaders(),
         data: payload,
       });
 
@@ -220,7 +218,7 @@ export default function ReconcileCreate() {
         const data = res.data || {};
         const id = data.id || data.reconcile_id || data.uuid;
 
-        Toast.show({ content: "已保存 ✅" });
+        toast("已保存 ✅");
 
         // 保存后跳详情页（优先用后端返回 id）
         Taro.navigateTo({
@@ -233,7 +231,7 @@ export default function ReconcileCreate() {
       const errMsg =
         (res.data && (res.data.detail || res.data.message)) ||
         `保存失败（HTTP ${res.statusCode}）`;
-      Toast.show({ content: String(errMsg) });
+      toast(String(errMsg));
     } catch (e) {
       Toast.show({ content: `网络错误：${String(e?.message || e)}` });
     }
@@ -516,7 +514,7 @@ export default function ReconcileCreate() {
             onChange={(v) =>
               setDoc((p) => ({ ...p, buyer: { ...p.buyer, toAddress: v } }))
             }
-            placeholder='例如: "59 Georges Street Lower, Dún Laoghaire, Dublin A96 EW71完整英文收货地址'
+            placeholder='例如: "59 George\'s Street Lower, Dún Laoghaire, Dublin A96 EW71"\n完整英文收货地址'
             rows={3}
           />
         </Cell>
@@ -791,5 +789,4 @@ export default function ReconcileCreate() {
     </View>
   );
 }
-
 

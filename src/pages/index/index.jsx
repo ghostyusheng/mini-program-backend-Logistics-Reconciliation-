@@ -1,9 +1,10 @@
 import Taro, { useDidShow, usePullDownRefresh } from "@tarojs/taro";
 import { View, Text } from "@tarojs/components";
 import React, { useCallback, useMemo, useState } from "react";
-import { Button, Tag, Toast } from "@nutui/nutui-react-taro";
+import { Button, Tag } from "@nutui/nutui-react-taro";
 import "./index.scss";
 
+import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
 /**
  * Reconcile List Page
  * API:
@@ -24,7 +25,14 @@ import "./index.scss";
  */
 
 const API_BASE = "http://127.0.0.1:8000";
-const CUSTOMER_ID = "f8b43cb1-fbd9-4918-9506-c4b1bf33de78"; // TODO: later load from login/profile
+
+function authHeaders() {
+  const token = Taro.getStorageSync("token");
+  if (!token) return { "Content-Type": "application/json" };
+  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+}
+
+const CUSTOMER_ID = Taro.getStorageSync("customer_id") || ""; // TODO: later load from login/profile
 
 function money(n) {
   const x = Number(n);
@@ -58,7 +66,7 @@ export default function ReconcileIndex() {
         url: `${API_BASE}/v1/reconciles`,
         method: "GET",
         data: { customer_id: CUSTOMER_ID },
-        header: { "Content-Type": "application/json" },
+        header: authHeaders(),
       });
 
       const status = res?.statusCode ?? 0;
