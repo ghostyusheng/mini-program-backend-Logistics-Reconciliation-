@@ -113,7 +113,7 @@ export default function ReconcileIndex() {
     <View className="page">
       <View className="header">
         <View className="headerLeft">
-          <Text className="h1">对账单</Text>
+          <Text className="h1">核对品名清单</Text>
           <Text className="h2">我的 Reconciles（客户维度）</Text>
         </View>
         <Button size="small" type="primary" onClick={goCreate}>
