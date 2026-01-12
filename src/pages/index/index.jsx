@@ -1,183 +1,202 @@
+import Taro, { useDidShow, usePullDownRefresh } from "@tarojs/taro";
 import { View, Text } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useState, useMemo } from "react";
-import { Tabs, Button, Tag, Cell, Input, TextArea, Toast } from "@nutui/nutui-react-taro";
+import React, { useCallback, useMemo, useState } from "react";
+import { Button, Tag, Toast } from "@nutui/nutui-react-taro";
 import "./index.scss";
-//import "@nutui/nutui-react-taro/dist/style.css";
 
+/**
+ * Reconcile List Page
+ * API:
+ *   GET /v1/reconciles?customer_id=...
+ *
+ * Expected response:
+ * {
+ *   "items": [{
+ *      "id": "...",
+ *      "invoice_no": "...",
+ *      "invoice_date": "YYYY-MM-DD",
+ *      "editable": true,
+ *      "total_amount": 13.3,
+ *      "item_count": 2,
+ *      "updated_at": "2026-01-11 22:29:11.860346+00"
+ *   }]
+ * }
+ */
 
-const STATUS = {
-  DRAFT: { text: "草稿", type: "primary" },
-  REVIEW: { text: "待审核", type: "warning" },
-  APPROVED: { text: "已通过", type: "success" },
-  NEED_FIX: { text: "需补充", type: "danger" },
-};
+const API_BASE = "http://127.0.0.1:8000";
+const CUSTOMER_ID = "f8b43cb1-fbd9-4918-9506-c4b1bf33de78"; // TODO: later load from login/profile
 
-function ReconcileCard({ item, onClick }) {
-  const s = STATUS[item.status] || { text: item.status, type: "default" };
-
-  return (
-    <View className="card" onClick={() => onClick(item)}>
-      <View className="cardTop">
-        <View>
-          <Text className="cardTitle">{item.title}</Text>
-          <Text className="cardSub">编号：{item.id}</Text>
-        </View>
-        <Tag type={s.type} round>
-          {s.text}
-        </Tag>
-      </View>
-
-      <View className="cardMid">
-        <Text className="muted">客户：</Text>
-        <Text>{item.customerName}</Text>
-      </View>
-
-      <View className="cardMid">
-        <Text className="muted">更新时间：</Text>
-        <Text>{item.updatedAt}</Text>
-      </View>
-
-      <View className="cardBottom">
-        <Text className="muted">订单数：</Text>
-        <Text>{item.orderCount}</Text>
-        <Text className="dot">·</Text>
-        <Text className="muted">附件：</Text>
-        <Text>{item.attachmentCount}</Text>
-      </View>
-    </View>
-  );
+function money(n) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return "0.00";
+  return (Math.round((x + Number.EPSILON) * 100) / 100).toFixed(2);
 }
 
-export default function Index() {
-  const [tab, setTab] = useState("my");
+function friendlyTime(s) {
+  // backend returns "2026-01-11 22:29:11.860346+00"
+  if (!s) return "-";
+  // show "2026-01-11 22:29"
+  return String(s).slice(0, 16);
+}
 
-  // 先用假数据跑通 UI。后面你接接口把这块替换成 API 即可。
-  const myReconciles = useMemo(
-    () => [
-      {
-        id: "R-20260109-001",
-        title: "对账单 001",
-        status: "DRAFT",
-        customerName: "客户 A",
-        updatedAt: "2026-01-09 13:02",
-        orderCount: 3,
-        attachmentCount: 1,
-      },
-      {
-        id: "R-20260108-002",
-        title: "对账单 002",
-        status: "REVIEW",
-        customerName: "客户 B",
-        updatedAt: "2026-01-08 20:41",
-        orderCount: 8,
-        attachmentCount: 4,
-      },
-      {
-        id: "R-20260107-003",
-        title: "对账单 003",
-        status: "APPROVED",
-        customerName: "客户 C",
-        updatedAt: "2026-01-07 11:20",
-        orderCount: 12,
-        attachmentCount: 6,
-      },
-    ],
-    []
-  );
+export default function ReconcileIndex() {
+  const [loading, setLoading] = useState(false);
+  const [list, setList] = useState([]);
 
-  const [form, setForm] = useState({
-    title: "",
-    customerName: "",
-    note: "",
+  const currency = useMemo(() => {
+    // list endpoint does not return currency; keep a constant for now
+    // If you add currency to backend response later, just read it per-item
+    return "CNY";
+  }, []);
+
+  const fetchList = useCallback(async (opts = { silent: false }) => {
+    const silent = !!opts?.silent;
+    if (!silent) setLoading(true);
+
+    try {
+      const res = await Taro.request({
+        url: `${API_BASE}/v1/reconciles`,
+        method: "GET",
+        data: { customer_id: CUSTOMER_ID },
+        header: { "Content-Type": "application/json" },
+      });
+
+      const status = res?.statusCode ?? 0;
+      if (status < 200 || status >= 300) {
+        throw new Error(
+          `HTTP ${status}: ${
+            typeof res?.data === "string" ? res.data : JSON.stringify(res?.data)
+          }`
+        );
+      }
+
+      const items = res?.data?.items || [];
+      setList(items);
+    } catch (e) {
+      console.error(e);
+      Toast.show({ content: `获取列表失败：${e?.message || e}` });
+    } finally {
+      if (!silent) setLoading(false);
+      try {
+        Taro.stopPullDownRefresh();
+      } catch (_) {}
+    }
+  }, []);
+
+  useDidShow(() => {
+    fetchList({ silent: false });
   });
 
-  const goDetail = (item) => {
-    Taro.navigateTo({ url: `/pages/reconcile/detail?id=${encodeURIComponent(item.id)}` });
+  usePullDownRefresh(() => {
+    fetchList({ silent: true });
+  });
+
+  const goCreate = () => {
+    Taro.navigateTo({ url: "/pages/reconcile/create" });
   };
 
-  const submitCreate = () => {
-    if (!form.title.trim()) {
-      Toast.show({ content: "请填写对账单名称" });
-      return;
-    }
-    if (!form.customerName.trim()) {
-      Toast.show({ content: "请填写客户名称" });
-      return;
-    }
-
-    // 这里后面换成 API：POST /reconciles
-    Toast.show({ content: "已创建（模拟）✅" });
-
-    // 模拟创建后跳详情页
-    const fakeId = `R-${Date.now()}`;
-    Taro.navigateTo({ url: `/pages/reconcile/detail?id=${encodeURIComponent(fakeId)}` });
+  const goDetail = (id) => {
+    Taro.navigateTo({
+      url: `/pages/reconcile/detail?id=${encodeURIComponent(id)}`,
+    });
   };
 
   return (
     <View className="page">
-      <View className="pageHeader">
-        <Text className="h1">对账协作</Text>
-        <Text className="h2">H5 + 微信小程序通用</Text>
+      <View className="header">
+        <View className="headerLeft">
+          <Text className="h1">对账单</Text>
+          <Text className="h2">我的 Reconciles（客户维度）</Text>
+        </View>
+        <Button size="small" type="primary" onClick={goCreate}>
+          + 创建
+        </Button>
       </View>
 
-      <Tabs value={tab} onChange={(val) => setTab(val)} className="tabs">
-        <Tabs.TabPane title="我的对账单" value="my">
-          <View className="section">
-            {myReconciles.map((it) => (
-              <ReconcileCard key={it.id} item={it} onClick={goDetail} />
-            ))}
-          </View>
+      {loading ? (
+        <View className="tips">
+          <Text className="muted">加载中...</Text>
+        </View>
+      ) : null}
 
-          <View className="stickyBottom">
-            <Button block type="primary" onClick={() => Taro.navigateTo({ url: "/pages/reconcile/create" })}>
-              + 创建对账单
-            </Button>
-          </View>
-        </Tabs.TabPane>
+      {list.length === 0 && !loading ? (
+        <View className="empty">
+          <Text className="muted">暂无对账单，点击右上角 “+ 创建”</Text>
+        </View>
+      ) : (
+        <View className="list">
+          {list.map((it) => (
+            <View key={it.id} className="card" onClick={() => goDetail(it.id)}>
+              <View className="cardTop">
+                <Text className="title">{it.invoice_no || "-"}</Text>
+                <View className="tags">
+                  {it.editable ? (
+                    <Tag type="success" round>
+                      Editable
+                    </Tag>
+                  ) : (
+                    <Tag type="default" round>
+                      Locked
+                    </Tag>
+                  )}
+                  <Tag type="primary" round>
+                    {currency}
+                  </Tag>
+                </View>
+              </View>
 
-        <Tabs.TabPane title="创建对账单" value="create">
-          <View className="section">
-            <View className="formCard">
-              <Cell title="对账单名称">
-                <Input
-                  placeholder="例如：2026-01 周期对账"
-                  value={form.title}
-                  onChange={(v) => setForm((p) => ({ ...p, title: v }))}
-                />
-              </Cell>
+              <View className="row">
+                <Text className="k">Invoice Date</Text>
+                <Text className="v">{it.invoice_date || "-"}</Text>
+              </View>
 
-              <Cell title="客户名称">
-                <Input
-                  placeholder="例如：Easy2Go 客户 A"
-                  value={form.customerName}
-                  onChange={(v) => setForm((p) => ({ ...p, customerName: v }))}
-                />
-              </Cell>
+              <View className="row">
+                <Text className="k">Items</Text>
+                <Text className="v">{Number(it.item_count ?? 0)}</Text>
 
-              <Cell title="备注（可选）">
-                <TextArea
-                  placeholder="可写：发票缺失、装箱照片待补、异常说明..."
-                  value={form.note}
-                  onChange={(v) => setForm((p) => ({ ...p, note: v }))}
-                  maxLength={200}
-                  rows={3}
-                />
-              </Cell>
+                <Text className="dot">·</Text>
 
-              <View className="btnRow">
-                <Button type="default" onClick={() => setForm({ title: "", customerName: "", note: "" })}>
-                  清空
+                <Text className="k">Total</Text>
+                <Text className="v strong">
+                  {money(it.total_amount)} {currency}
+                </Text>
+              </View>
+
+              <View className="row">
+                <Text className="k">Updated</Text>
+                <Text className="v">{friendlyTime(it.updated_at)}</Text>
+              </View>
+
+              <View className="cardBottom">
+                <Button
+                  size="small"
+                  type="default"
+                  onClick={(e) => {
+                    e?.stopPropagation?.();
+                    fetchList({ silent: false });
+                  }}
+                >
+                  刷新
                 </Button>
-                <Button type="primary" onClick={submitCreate}>
-                  创建并进入
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={(e) => {
+                    e?.stopPropagation?.();
+                    goDetail(it.id);
+                  }}
+                >
+                  查看详情
                 </Button>
               </View>
             </View>
-          </View>
-        </Tabs.TabPane>
-      </Tabs>
+          ))}
+        </View>
+      )}
+
+      <View className="footerHint">
+        <Text className="muted">下拉可刷新</Text>
+      </View>
     </View>
   );
 }
-
