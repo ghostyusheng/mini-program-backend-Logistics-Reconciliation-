@@ -1,25 +1,121 @@
-.page {
-  padding: 16px;
+.page{
+  padding: 14px;
+  padding-bottom: 26px;
 }
-.header {
-  padding: 12px;
+.header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.headerMid{
+  flex: 1;
+  display:flex;
+  flex-direction:column;
+  gap: 2px;
+  align-items:center;
+}
+.h1{ font-size:16px; font-weight:800; }
+.h2{ font-size:10px; color: rgba(0,0,0,0.5); }
+
+.muted{ color: rgba(0,0,0,0.55); font-size:12px; }
+.strong{ font-weight:800; }
+
+.tips, .empty{
+  padding: 18px 12px;
   border-radius: 12px;
-  background: #f7f8fa;
-}
-.title {
-  font-size: 18px;
-  font-weight: 600;
-}
-.sub {
-  display: block;
-  margin-top: 6px;
-  color: #666;
-  font-size: 13px;
-}
-.body {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #fff;
+  background: rgba(0,0,0,0.03);
 }
 
+.card{
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom: 10px;
+}
+
+.cardTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.cardTitle{
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(0,0,0,0.88);
+}
+.tags{
+  display:flex;
+  gap: 6px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.row{
+  display:flex;
+  align-items:flex-start;
+  gap: 8px;
+  padding: 3px 0;
+}
+.k{
+  width: 92px;
+  flex: 0 0 92px;
+  font-size: 12px;
+  color: rgba(0,0,0,0.55);
+}
+.v{
+  flex: 1;
+  font-size: 12px;
+  color: rgba(0,0,0,0.85);
+  word-break: break-word;
+}
+
+.dot{
+  color: rgba(0,0,0,0.25);
+  margin: 0 2px;
+}
+
+.itemList{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+.itemCard{
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.03);
+}
+
+.itemTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.itemName{
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(0,0,0,0.88);
+}
+
+.itemMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 6px;
+  align-items:center;
+  padding: 2px 0;
+}
+
+.footerHint{
+  margin-top: 12px;
+  display:flex;
+  justify-content:center;
+}
