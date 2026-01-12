@@ -16,6 +16,11 @@
   gap: 2px;
   align-items:center;
 }
+.headerRight{
+  display:flex;
+  gap: 8px;
+  align-items:flex-start;
+}
 .h1{ font-size:16px; font-weight:800; }
 .h2{ font-size:10px; color: rgba(0,0,0,0.5); }
 
@@ -74,7 +79,6 @@
   color: rgba(0,0,0,0.85);
   word-break: break-word;
 }
-
 .dot{
   color: rgba(0,0,0,0.25);
   margin: 0 2px;
@@ -114,8 +118,91 @@
   padding: 2px 0;
 }
 
+.itemActions{
+  margin-top: 8px;
+  display:flex;
+  justify-content:flex-end;
+  gap: 8px;
+}
+
+.formGrid2{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+.field.full{
+  grid-column: 1 / -1;
+}
+.label{
+  font-size: 12px;
+  color: rgba(0,0,0,0.65);
+}
+
+.saveBar{
+  margin-top: 12px;
+}
+
 .footerHint{
   margin-top: 12px;
   display:flex;
   justify-content:center;
+}
+
+/* ====== Item Popup ====== */
+.itemPopup{
+  height: 82vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.popupHeader,
+.popupFooter{
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.stickyTop{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.stickyBottom{
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.popupBody{
+  flex: 1;
+  padding: 12px 14px;
+}
+
+.scrollY{
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.grid3{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.calcRow{
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.03);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
