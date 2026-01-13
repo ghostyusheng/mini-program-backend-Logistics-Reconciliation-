@@ -4,7 +4,11 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Button, Tag } from "@nutui/nutui-react-taro";
 import "./index.scss";
 
-import { toast as Toast, toastLoading, toastHideLoading } from "../../utils/toast";
+import {
+  toast as Toast,
+  toastLoading,
+  toastHideLoading,
+} from "../../utils/toast";
 /**
  * Reconcile List Page
  * API:
@@ -29,7 +33,10 @@ const API_BASE = "http://127.0.0.1:8000";
 function authHeaders() {
   const token = Taro.getStorageSync("token");
   if (!token) return { "Content-Type": "application/json" };
-  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
 }
 
 const CUSTOMER_ID = Taro.getStorageSync("customer_id") || ""; // TODO: later load from login/profile
@@ -114,7 +121,24 @@ export default function ReconcileIndex() {
       <View className="header">
         <View className="headerLeft">
           <Text className="h1">核对品名清单</Text>
-          <Text className="h2">客户:{CUSTOMER_ID} Role:{Taro.getStorageSync("x_role")}</Text>
+          <Text className="h2">
+            客户:
+            {CUSTOMER_ID ? (
+              CUSTOMER_ID
+            ) : (
+              <>
+                未登录{" "}
+                <Button
+                  size="mini"
+                  type="primary"
+                  onClick={() => Taro.reLaunch({ url: "/pages/login/index" })}
+                >
+                  去登录
+                </Button>
+              </>
+            )}{" "}
+            Role:{Taro.getStorageSync("x_role")}
+          </Text>
         </View>
         <Button size="small" type="primary" onClick={goCreate}>
           + 创建
