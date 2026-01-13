@@ -501,6 +501,9 @@ export default function ReconcileDetail() {
 
   return (
     <View className="page">
+      <View className="fab-home" onClick={()=>Taro.reLaunch({ url: '/pages/index/index' })}>
+        <Text className="fab-icon">🏠</Text>
+      </View>
       <View className="header">
         <Button size="small" type="default" onClick={goBack}>
           返回
@@ -510,7 +513,7 @@ export default function ReconcileDetail() {
           <Text className="h1">{data.invoice_no || "对账单详情"}</Text>
           <Text className="h2">ID: {data.id}</Text>
         </View>
-
+        <View></View>
         <View className="headerRight">
           {admin ? (
             <Button
@@ -521,7 +524,6 @@ export default function ReconcileDetail() {
               {data.editable ? "锁定" : "解锁"}
             </Button>
           ) : null}
-
           {!editMode ? (
             <Button
               size="small"

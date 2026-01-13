@@ -1,1 +1,30 @@
 @import "@nutui/nutui-react-taro/dist/style.css";
+
+.fab-home {
+  position: fixed;
+  right: 16px;
+  bottom: 24px;
+
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+
+  background: #ff4d4f;
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+}
+
+.fab-home:active {
+  transform: scale(0.95);
+}
+
+.fab-icon {
+  font-size: 22px;
+  line-height: 1;
+}

@@ -247,6 +247,9 @@ export default function ReconcileCreate() {
   // ========== UI ==========
   return (
     <View className="page">
+            <View className="fab-home" onClick={()=>Taro.reLaunch({ url: '/pages/index/index' })}>
+              <Text className="fab-icon">🏠</Text>
+            </View>
       <View className="header">
         <Text className="h1">创建运输货物清单</Text>
         <Text className="h2">按 Commercial Invoice & Packing List 填写</Text>
