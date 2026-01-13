@@ -11,6 +11,12 @@ import {
   Popup, } from "@nutui/nutui-react-taro";
 import "./create.scss";
 
+function authHeaders() {
+  const token = Taro.getStorageSync("token");
+  if (!token) return { "Content-Type": "application/json" };
+  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+}
+
 function todayISO() {
   const d = new Date();
   const y = d.getFullYear();
@@ -234,7 +240,7 @@ export default function ReconcileCreate() {
         `保存失败（HTTP ${res.statusCode}）`;
       toast(String(errMsg));
     } catch (e) {
-      Toast.show({ content: `网络错误：${String(e?.message || e)}` });
+      toast(`网络错误：${String(e?.message || e)}`);
     }
   };
 

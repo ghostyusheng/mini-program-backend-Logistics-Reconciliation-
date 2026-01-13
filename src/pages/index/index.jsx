@@ -114,7 +114,7 @@ export default function ReconcileIndex() {
       <View className="header">
         <View className="headerLeft">
           <Text className="h1">核对品名清单</Text>
-          <Text className="h2">我的 Reconciles（客户维度）</Text>
+          <Text className="h2">客户:{CUSTOMER_ID} Role:{Taro.getStorageSync("x_role")}</Text>
         </View>
         <Button size="small" type="primary" onClick={goCreate}>
           + 创建
