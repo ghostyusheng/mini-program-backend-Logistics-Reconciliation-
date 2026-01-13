@@ -61,6 +61,10 @@ export default function ReconcileDetail() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
 
+  // ====== Pics (Reconcile-level) ======
+  const [pics, setPics] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
   // ====== 同页编辑 ======
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState(null);
@@ -93,30 +97,145 @@ export default function ReconcileDetail() {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }, []);
 
+  const fetchPics = useCallback(async () => {
+    if (!id) return;
+    try {
+      const res = await Taro.request({
+        url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}/pics`,
+        method: "GET",
+        header: { "Content-Type": "application/json", ...authHeader },
+      });
+
+      const status = res?.statusCode ?? 0;
+      if (status < 200 || status >= 300) {
+        throw new Error(`HTTP ${status}: ${JSON.stringify(res?.data)}`);
+      }
+
+      setPics(res?.data?.pics || []);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [id, authHeader]);
+
+  const uploadPic = useCallback(async () => {
+    if (!id) return toast("缺少 id");
+    if (uploading) return;
+
+    try {
+      setUploading(true);
+
+      const pick = await Taro.chooseImage({
+        count: 1,
+        sizeType: ["compressed"],
+        sourceType: ["album", "camera"],
+      });
+
+      const filePath = pick?.tempFilePaths?.[0];
+      if (!filePath) return;
+
+      toastLoading("上传中...");
+      const res = await Taro.uploadFile({
+        url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}/pics`,
+        filePath,
+        name: "file",
+        header: { ...authHeader },
+        timeout: 60000,
+      });
+
+      const status = res?.statusCode ?? 0;
+      if (status < 200 || status >= 300) {
+        throw new Error(`HTTP ${status}: ${res?.data || ""}`);
+      }
+
+      let body = res?.data;
+      if (typeof body === "string") {
+        try {
+          body = JSON.parse(body);
+        } catch (_) {}
+      }
+
+      if (body?.pics) setPics(body.pics);
+      else await fetchPics();
+
+      toast("上传成功 ✅");
+    } catch (e) {
+      console.error(e);
+      toast(`上传失败：${e?.message || e}`);
+    } finally {
+      toastHideLoading();
+      setUploading(false);
+    }
+  }, [id, authHeader, fetchPics, uploading]);
+
   const fetchDetail = useCallback(
-    async (opts = { silent: false }) => {
-      const silent = !!opts?.silent;
-      if (!silent) setLoading(true);
+  async (opts = { silent: false }) => {
+    const silent = !!opts?.silent;
+    if (!silent) setLoading(true);
+
+    try {
+      if (!id) throw new Error("缺少 id 参数");
+
+      const res = await Taro.request({
+        url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}`,
+        method: "GET",
+        header: { "Content-Type": "application/json", ...authHeader },
+      });
+
+      const status = res?.statusCode ?? 0;
+      if (status < 200 || status >= 300) {
+        throw new Error(
+          `HTTP ${status}: ${
+            typeof res?.data === "string" ? res.data : JSON.stringify(res?.data)
+          }`
+        );
+      }
+
+      setData(res?.data || null);
+      // 如果你的详情接口返回 pics_jsonb，也顺便同步一下
+      setPics(res?.data?.pics_jsonb || res?.data?.pics || []);
+    } catch (e) {
+      console.error(e);
+      toast(`获取详情失败：${e?.message || e}`);
+    } finally {
+      if (!silent) setLoading(false);
+      try {
+        Taro.stopPullDownRefresh();
+      } catch (_) {}
+    }
+  },
+  [id, authHeader]
+);
+
+
+  const deletePic = useCallback(
+    async (relPath) => {
+      if (!id) return;
+
+      const modal = await Taro.showModal({
+        title: "删除图片",
+        content: "确定删除这张图片吗？",
+        confirmText: "删除",
+        cancelText: "取消",
+      });
+      if (!modal.confirm) return;
 
       try {
-        if (!id) throw new Error("缺少 id 参数");
-
+        toastLoading("删除中...");
         const res = await Taro.request({
-          url: `${API_BASE}/v1/reconciles/${encodeURIComponent(id)}`,
-          method: "GET",
+          url: `${API_BASE}/v1/reconciles/${encodeURIComponent(
+            id
+          )}/pics?rel_path=${encodeURIComponent(relPath)}`,
+          method: "DELETE",
           header: { "Content-Type": "application/json", ...authHeader },
         });
 
         const status = res?.statusCode ?? 0;
         if (status < 200 || status >= 300) {
-          throw new Error(
-            `HTTP ${status}: ${
-              typeof res?.data === "string" ? res.data : JSON.stringify(res?.data)
-            }`
-          );
+          throw new Error(`HTTP ${status}: ${JSON.stringify(res?.data)}`);
         }
 
         setData(res?.data || null);
+        setPics(res?.data?.pics_jsonb || res?.data?.pics || []);
       } catch (e) {
         console.error(e);
         toast(`获取详情失败：${e?.message || e}`);
@@ -132,10 +251,12 @@ export default function ReconcileDetail() {
 
   useDidShow(() => {
     fetchDetail({ silent: false });
+    fetchPics();
   });
 
   usePullDownRefresh(() => {
     fetchDetail({ silent: true });
+    fetchPics();
   });
 
   const goBack = () => Taro.navigateBack();
@@ -186,7 +307,8 @@ export default function ReconcileDetail() {
 
     if (!form.to_company?.trim()) return toast("请填写 TO（收货人公司）");
     if (!form.invoice_no?.trim()) return toast("请填写 INVOICE NO.");
-    if (!form.items || form.items.length === 0) return toast("请至少保留 1 个 Item");
+    if (!form.items || form.items.length === 0)
+      return toast("请至少保留 1 个 Item");
 
     const payload = {
       exporter_jsonb: form.exporter_jsonb,
@@ -307,7 +429,8 @@ export default function ReconcileDetail() {
       packages: String(it.packages ?? "1"),
       unit_price: String(it.unit_price ?? "0"),
       net_weight: it.net_weight === null ? "" : String(it.net_weight ?? ""),
-      gross_weight: it.gross_weight === null ? "" : String(it.gross_weight ?? ""),
+      gross_weight:
+        it.gross_weight === null ? "" : String(it.gross_weight ?? ""),
       cbm: it.cbm === null ? "" : String(it.cbm ?? ""),
     });
     setShowItemModal(true);
@@ -464,6 +587,49 @@ export default function ReconcileDetail() {
             </View>
           </View>
 
+          {/* ====== PICS ====== */}
+          <View className="card">
+            <View className="cardTop">
+              <Text className="cardTitle">PICS</Text>
+              <Button
+                size="small"
+                type="primary"
+                onClick={uploadPic}
+                disabled={uploading || !data?.editable}
+              >
+                + 上传
+              </Button>
+            </View>
+
+            {!data?.editable ? (
+              <View className="empty">
+                <Text className="muted">已锁定，无法上传/删除</Text>
+              </View>
+            ) : null}
+
+            {!pics || pics.length === 0 ? (
+              <View className="empty">
+                <Text className="muted">暂无图片</Text>
+              </View>
+            ) : (
+              <View className="rows">
+                {pics.map((p) => (
+                  <View key={p} className="row">
+                    <Text className="k">{p.split("/").pop()}</Text>
+                    <Button
+                      size="small"
+                      type="danger"
+                      onClick={() => deletePic(p)}
+                      disabled={uploading || !data?.editable}
+                    >
+                      删除
+                    </Button>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
           <View className="card">
             <Text className="cardTitle">TO（收货人）</Text>
             <View className="row">
@@ -507,7 +673,11 @@ export default function ReconcileDetail() {
           <View className="card">
             <View className="cardTop">
               <Text className="cardTitle">ITEMS</Text>
-              <Button size="small" type="default" onClick={() => fetchDetail({ silent: false })}>
+              <Button
+                size="small"
+                type="default"
+                onClick={() => fetchDetail({ silent: false })}
+              >
                 刷新
               </Button>
             </View>
@@ -519,7 +689,8 @@ export default function ReconcileDetail() {
             ) : (
               <View className="itemList">
                 {(data.items || []).map((it, idx) => {
-                  const amount = Number(it.units_pcs ?? 0) * Number(it.unit_price ?? 0);
+                  const amount =
+                    Number(it.units_pcs ?? 0) * Number(it.unit_price ?? 0);
                   return (
                     <View key={idx} className="itemCard">
                       <View className="itemTop">
@@ -532,29 +703,37 @@ export default function ReconcileDetail() {
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">HS:</Text> <Text>{vOrDash(it.hs_code)}</Text>
+                        <Text className="muted">HS:</Text>{" "}
+                        <Text>{vOrDash(it.hs_code)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Material:</Text> <Text>{vOrDash(it.material)}</Text>
+                        <Text className="muted">Material:</Text>{" "}
+                        <Text>{vOrDash(it.material)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Marks:</Text> <Text>{vOrDash(it.marks_nos)}</Text>
+                        <Text className="muted">Marks:</Text>{" "}
+                        <Text>{vOrDash(it.marks_nos)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Tracking:</Text> <Text>{vOrDash(it.tracking_no)}</Text>
+                        <Text className="muted">Tracking:</Text>{" "}
+                        <Text>{vOrDash(it.tracking_no)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Units:</Text> <Text>{vOrDash(it.units_pcs)}</Text>
+                        <Text className="muted">Units:</Text>{" "}
+                        <Text>{vOrDash(it.units_pcs)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Packages:</Text> <Text>{vOrDash(it.packages)}</Text>
+                        <Text className="muted">Packages:</Text>{" "}
+                        <Text>{vOrDash(it.packages)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Unit Price:</Text> <Text>{money(it.unit_price)}</Text>
+                        <Text className="muted">Unit Price:</Text>{" "}
+                        <Text>{money(it.unit_price)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Total:</Text> <Text className="strong">{money(amount)}</Text>
+                        <Text className="muted">Total:</Text>{" "}
+                        <Text className="strong">{money(amount)}</Text>
                       </View>
 
                       <View className="itemMeta">
@@ -563,12 +742,14 @@ export default function ReconcileDetail() {
                           {vOrDash(it.net_weight)} / {vOrDash(it.gross_weight)}
                         </Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">CBM:</Text> <Text>{vOrDash(it.cbm)}</Text>
+                        <Text className="muted">CBM:</Text>{" "}
+                        <Text>{vOrDash(it.cbm)}</Text>
                       </View>
 
                       {it.barcode ? (
                         <View className="itemMeta">
-                          <Text className="muted">Barcode:</Text> <Text>{vOrDash(it.barcode)}</Text>
+                          <Text className="muted">Barcode:</Text>{" "}
+                          <Text>{vOrDash(it.barcode)}</Text>
                         </View>
                       ) : null}
                     </View>
@@ -692,7 +873,9 @@ export default function ReconcileDetail() {
                 <Text className="label">From</Text>
                 <Input
                   value={form.logistics_from}
-                  onChange={(v) => setForm((p) => ({ ...p, logistics_from: v }))}
+                  onChange={(v) =>
+                    setForm((p) => ({ ...p, logistics_from: v }))
+                  }
                   placeholder='例如: "Yantian, China"'
                 />
               </View>
@@ -710,7 +893,9 @@ export default function ReconcileDetail() {
                 <Text className="label">Transport</Text>
                 <Input
                   value={form.logistics_transport}
-                  onChange={(v) => setForm((p) => ({ ...p, logistics_transport: v }))}
+                  onChange={(v) =>
+                    setForm((p) => ({ ...p, logistics_transport: v }))
+                  }
                   placeholder="By Sea / By Air / Express"
                 />
               </View>
@@ -745,24 +930,37 @@ export default function ReconcileDetail() {
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">HS:</Text> <Text>{vOrDash(it.hs_code)}</Text>
+                        <Text className="muted">HS:</Text>{" "}
+                        <Text>{vOrDash(it.hs_code)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Material:</Text> <Text>{vOrDash(it.material)}</Text>
+                        <Text className="muted">Material:</Text>{" "}
+                        <Text>{vOrDash(it.material)}</Text>
                       </View>
 
                       <View className="itemMeta">
-                        <Text className="muted">Units:</Text> <Text>{vOrDash(it.units_pcs)}</Text>
+                        <Text className="muted">Units:</Text>{" "}
+                        <Text>{vOrDash(it.units_pcs)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Packages:</Text> <Text>{vOrDash(it.packages)}</Text>
+                        <Text className="muted">Packages:</Text>{" "}
+                        <Text>{vOrDash(it.packages)}</Text>
                         <Text className="dot">·</Text>
-                        <Text className="muted">Total:</Text> <Text className="strong">{money(amount)}</Text>
+                        <Text className="muted">Total:</Text>{" "}
+                        <Text className="strong">{money(amount)}</Text>
                       </View>
 
                       <View className="itemActions">
-                        <Button size="small" type="default" onClick={() => openEditItem(idx)}>
+                        <Button
+                          size="small"
+                          type="default"
+                          onClick={() => openEditItem(idx)}
+                        >
                           编辑
                         </Button>
-                        <Button size="small" type="danger" onClick={() => deleteItem(idx)}>
+                        <Button
+                          size="small"
+                          type="danger"
+                          onClick={() => deleteItem(idx)}
+                        >
                           删除
                         </Button>
                       </View>
@@ -796,7 +994,11 @@ export default function ReconcileDetail() {
           <Text className="popupTitle">
             {editingIndex >= 0 ? "编辑 Item" : "添加 Item"}
           </Text>
-          <Button size="small" type="default" onClick={() => setShowItemModal(false)}>
+          <Button
+            size="small"
+            type="default"
+            onClick={() => setShowItemModal(false)}
+          >
             关闭
           </Button>
         </View>
@@ -893,7 +1095,9 @@ export default function ReconcileDetail() {
               <Input
                 type="number"
                 value={itemForm.gross_weight}
-                onChange={(v) => setItemForm((p) => ({ ...p, gross_weight: v }))}
+                onChange={(v) =>
+                  setItemForm((p) => ({ ...p, gross_weight: v }))
+                }
                 placeholder="可留空"
               />
             </View>
