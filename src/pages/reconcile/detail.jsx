@@ -1,5 +1,5 @@
 import Taro, { useDidShow, usePullDownRefresh, useRouter } from "@tarojs/taro";
-import { View, Text } from "@tarojs/components";
+import { View, Text, Image } from "@tarojs/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { Button, Tag, Popup, Input, TextArea } from "@nutui/nutui-react-taro";
 import "./detail.scss";
@@ -17,6 +17,15 @@ import { toast, toastLoading, toastHideLoading } from "../../utils/toast";
  */
 
 const API_BASE = "http://127.0.0.1:8000";
+const STATIC_BASE = `${API_BASE}/static`;
+
+
+function toPicUrl(relPath) {
+  if (!relPath) return "";
+  const s = String(relPath);
+  if (s.startsWith("http://") || s.startsWith("https://")) return s;
+  return `${STATIC_BASE}/${s.replace(/^\/+/, "")}`;
+}
 
 function money(n) {
   const x = Number(n);
@@ -64,6 +73,20 @@ export default function ReconcileDetail() {
   // ====== Pics (Reconcile-level) ======
   const [pics, setPics] = useState([]);
   const [uploading, setUploading] = useState(false);
+
+  const picUrls = useMemo(() => (pics || []).map((p) => toPicUrl(p)), [pics]);
+
+  const previewPicsAt = useCallback(
+    (idx) => {
+      if (!picUrls || picUrls.length === 0) return;
+      const safeIdx = Math.max(0, Math.min(idx, picUrls.length - 1));
+      Taro.previewImage({
+        urls: picUrls,
+        current: picUrls[safeIdx],
+      });
+    },
+    [picUrls]
+  );
 
   // ====== 同页编辑 ======
   const [editMode, setEditMode] = useState(false);
@@ -197,7 +220,7 @@ export default function ReconcileDetail() {
       console.error(e);
       toast(`获取详情失败：${e?.message || e}`);
     } finally {
-      if (!silent) setLoading(false);
+      // if (!silent) setLoading(false);
       try {
         Taro.stopPullDownRefresh();
       } catch (_) {}
@@ -220,7 +243,7 @@ export default function ReconcileDetail() {
       if (!modal.confirm) return;
 
       try {
-        toastLoading("删除中...");
+        toast(`删除成功`);
         const res = await Taro.request({
           url: `${API_BASE}/v1/reconciles/${encodeURIComponent(
             id
@@ -234,13 +257,12 @@ export default function ReconcileDetail() {
           throw new Error(`HTTP ${status}: ${JSON.stringify(res?.data)}`);
         }
 
-        setData(res?.data || null);
         setPics(res?.data?.pics_jsonb || res?.data?.pics || []);
       } catch (e) {
         console.error(e);
         toast(`获取详情失败：${e?.message || e}`);
       } finally {
-        if (!silent) setLoading(false);
+        // if (!silent) setLoading(false);
         try {
           Taro.stopPullDownRefresh();
         } catch (_) {}
@@ -613,11 +635,26 @@ export default function ReconcileDetail() {
               </View>
             ) : (
               <View className="rows">
-                {pics.map((p) => (
-                  <View key={p} className="row">
-                    <Text className="k">{p.split("/").pop()}</Text>
-                    <Button
-                      size="small"
+                {pics.map((p) => {
+                  const url = toPicUrl(p);
+
+                  return (
+                    <View key={p} className="row">
+                      <Image
+                        src={url}
+                        mode="aspectFill"
+                        style={{ width: 72, height: 72, borderRadius: 10, background: "#f6f7f9" }}
+                        onClick={() =>
+                          Taro.previewImage({
+                            urls: pics.map((x) => toPicUrl(x)),
+                            current: url,
+                          })
+                        }
+                        lazyLoad
+                      />
+                      {/* <Text className="k">{p.split("/").pop()}</Text> */}
+                      <Button
+                        size="small"
                       type="danger"
                       onClick={() => deletePic(p)}
                       disabled={uploading || !data?.editable}
@@ -625,7 +662,9 @@ export default function ReconcileDetail() {
                       删除
                     </Button>
                   </View>
-                ))}
+                  )
+                  })
+                }
               </View>
             )}
           </View>
