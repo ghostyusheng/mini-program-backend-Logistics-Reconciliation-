@@ -1094,7 +1094,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Units (pcs)*</Text>
               <Input
-                type="number"
+                type="digit"
                 value={itemForm.units_pcs}
                 onChange={(v) => setItemForm((p) => ({ ...p, units_pcs: v }))}
                 placeholder="例如: 10"
@@ -1104,7 +1104,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Packages</Text>
               <Input
-                type="number"
+                type="digit"
                 value={itemForm.packages}
                 onChange={(v) => setItemForm((p) => ({ ...p, packages: v }))}
                 placeholder="默认 1"
@@ -1114,7 +1114,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Unit Price*</Text>
               <Input
-                type="number"
+                type="digit"
                 value={itemForm.unit_price}
                 onChange={(v) => setItemForm((p) => ({ ...p, unit_price: v }))}
                 placeholder="例如: 299.99"
@@ -1124,7 +1124,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Net Wt (kg)</Text>
               <Input
-                type="number"
+                type="digit"
                 value={itemForm.net_weight}
                 onChange={(v) => setItemForm((p) => ({ ...p, net_weight: v }))}
                 placeholder="可留空"
@@ -1134,7 +1134,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">Gross Wt (kg)</Text>
               <Input
-                type="number"
+                type="digit"
                 value={itemForm.gross_weight}
                 onChange={(v) =>
                   setItemForm((p) => ({ ...p, gross_weight: v }))
@@ -1146,7 +1146,7 @@ export default function ReconcileDetail() {
             <View className="field">
               <Text className="label">CBM (m³)</Text>
               <Input
-                type="number"
+                type="digit"
                 value={itemForm.cbm}
                 onChange={(v) => setItemForm((p) => ({ ...p, cbm: v }))}
                 placeholder="可留空"

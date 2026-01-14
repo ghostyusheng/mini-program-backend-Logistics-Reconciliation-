@@ -23,7 +23,7 @@
   border-radius: 14px;
   padding: 12px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 .cardRow {
@@ -61,6 +61,18 @@
 }
 @media (min-width: 420px) {
   .grid2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ✅ 给 TO+INVOICE 用：更紧凑的两列字段 */
+.grid2Compact {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 360px) {
+  .grid2Compact {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -109,8 +121,10 @@
   font-size: 12px;
   color: #222;
 }
+
 .muted {
-  color: #888;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
 }
 .dot {
   margin: 0 6px;
@@ -144,14 +158,18 @@
   z-index: 99;
 }
 
+/* =========================
+   Popup (通用容器)
+   ========================= */
 .popup {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   overflow: hidden;
+  background: #fff;
 }
 
 .popupHeader {
-  padding: 12px;
+  padding: 12px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -163,35 +181,31 @@
 }
 
 .popupSectionTitle {
-  padding: 10px 12px 0;
+  padding: 10px 14px 0;
   font-size: 13px;
   color: #666;
 }
 
 .popupFooter {
-  padding: 12px;
+  padding: 12px 14px;
   background: #fff;
 }
 
-.calcRow {
-  padding: 10px 12px;
-  display: flex;
-  justify-content: space-between;
-  background: #fff;
-  font-size: 13px;
-}
-
-
+/* =========================
+   ✅ 关键：弹窗结构化布局
+   Header/Footer 固定，中间滚动
+   ========================= */
 .itemPopup {
-  height: 82vh; // 关键：限制高度，给手机留空间
+  height: 82vh; /* 你原来的 item 弹窗高度 */
   display: flex;
   flex-direction: column;
 }
 
-.popupHeader,
-.popupFooter {
-  padding: 12px 14px;
-  background: #fff;
+/* ✅ 新增：TO+INVOICE 更高一点，避免挤 */
+.buyerPopup {
+  height: 88vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .stickyTop {
@@ -211,6 +225,7 @@
 .popupBody {
   flex: 1;
   padding: 12px 14px;
+  background: #fff;
 }
 
 .scrollY {
@@ -218,9 +233,19 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* =========================
+   表单字段布局（item / TO / invoice 通用）
+   ========================= */
 .grid3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* ✅ 你 TO+INVOICE 如果字段多，建议用这个：单列 + 紧凑 */
+.grid1 {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -229,9 +254,8 @@
   flex-direction: column;
   gap: 6px;
 }
-
 .field.full {
-  grid-column: 1 / -1; // 占满一行
+  grid-column: 1 / -1;
 }
 
 .label {
@@ -239,6 +263,9 @@
   color: rgba(0, 0, 0, 0.65);
 }
 
+/* =========================
+   计算/汇总条：统一定义，避免重复覆盖
+   ========================= */
 .calcRow {
   margin-top: 12px;
   padding: 10px 12px;
@@ -247,14 +274,5 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 13px;
 }
-
-.muted {
-  color: rgba(0, 0, 0, 0.55);
-  font-size: 12px;
-}
-
-.strong {
-  font-weight: 600;
-}
-

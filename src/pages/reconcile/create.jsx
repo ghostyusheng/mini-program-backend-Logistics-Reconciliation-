@@ -45,9 +45,9 @@ export default function ReconcileCreate() {
   // ========== 默认值（你以后可从 profile / 客户档案带入） ==========
   const defaultSeller = useMemo(
     () => ({
-      name: "LONG LINK TRADING LTD",
+      name: "",
       address:
-        "ADD: 3 ZHONG SHAN 3RD STREET LUING, PLAZA ZHONG SHAN ZHONG SHAN CHINA, 528400",
+        "",
     }),
     []
   );
@@ -501,101 +501,144 @@ export default function ReconcileCreate() {
         visible={showEditBuyerInvoice}
         position="bottom"
         onClose={() => setShowEditBuyerInvoice(false)}
-        className="popup"
+        className="buyerPopup"
       >
-        <View className="popupHeader">
+        {/* Header 固定 */}
+        <View className="popupHeader stickyTop">
           <Text className="popupTitle">编辑 TO + INVOICE</Text>
-          <Button size="small" type="default" onClick={() => setShowEditBuyerInvoice(false)}>
+          <Button
+            size="small"
+            type="default"
+            onClick={() => setShowEditBuyerInvoice(false)}
+          >
             关闭
           </Button>
         </View>
 
-        <View className="popupSectionTitle">TO（收货人）</View>
-        <Cell title="TO">
-          <Input
-            value={doc.buyer.toName}
-            onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, toName: v } }))}
-            placeholder='例如: "Bite of China Ltd"（收货人公司全称）'
-          />
-        </Cell>
-        <Cell title="ADD">
-          <TextArea
-            value={doc.buyer.toAddress}
-            onChange={(v) =>
-              setDoc((p) => ({ ...p, buyer: { ...p.buyer, toAddress: v } }))
-            }
-            placeholder='例如: "59 Georges Street Lower, Dún Laoghaire, Dublin A96 EW71"\n完整英文收货地址'
-            rows={3}
-          />
-        </Cell>
-        <Cell title="TEL">
-          <Input
-            value={doc.buyer.toTel}
-            onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, toTel: v } }))}
-            placeholder='+353 1 2311726（固定电话或手机）'
-          />
-        </Cell>
-        <Cell title="VAT NO.">
-          <Input
-            value={doc.buyer.vatNo}
-            onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, vatNo: v } }))}
-            placeholder='例如: "IE4145006KH"（欧盟VAT，如适用）'
-          />
-        </Cell>
+        {/* 内容可滚动：避免小屏拥挤 */}
+        <View className="popupBody scrollY">
+          <View className="popupSectionTitle">TO（收货人）</View>
+          <Cell title="TO">
+            <Input
+              value={doc.buyer.toName}
+              onChange={(v) =>
+                setDoc((p) => ({ ...p, buyer: { ...p.buyer, toName: v } }))
+              }
+              placeholder='例如: "Bite of China Ltd"（收货人公司全称）'
+            />
+          </Cell>
+          <Cell title="ADD">
+            <TextArea
+              value={doc.buyer.toAddress}
+              onChange={(v) =>
+                setDoc((p) => ({ ...p, buyer: { ...p.buyer, toAddress: v } }))
+              }
+              placeholder='例如: "59 Georges Street Lower, Dún Laoghaire, Dublin A96 EW71"\n完整英文收货地址'
+              rows={2}
+              autosize
+            />
+          </Cell>
+          <Cell title="TEL">
+            <Input
+              value={doc.buyer.toTel}
+              onChange={(v) =>
+                setDoc((p) => ({ ...p, buyer: { ...p.buyer, toTel: v } }))
+              }
+              placeholder="+353 1 2311726（固定电话或手机）"
+            />
+          </Cell>
+          <Cell title="VAT NO.">
+            <Input
+              value={doc.buyer.vatNo}
+              onChange={(v) =>
+                setDoc((p) => ({ ...p, buyer: { ...p.buyer, vatNo: v } }))
+              }
+              placeholder='例如: "IE4145006KH"（欧盟VAT，如适用）'
+            />
+          </Cell>
 
-        <View className="popupSectionTitle">INVOICE</View>
-        <Cell title="INVOICE NO.">
-          <Input
-            value={doc.invoice.invoiceNo}
-            onChange={(v) =>
-              setDoc((p) => ({ ...p, invoice: { ...p.invoice, invoiceNo: v } }))
-            }
-            placeholder='例如: "GSAM240109001"（前缀+日期+流水号）'
-          />
-        </Cell>
-        <Cell title="INVOICE DATE">
-          <Input
-            value={doc.invoice.invoiceDate}
-            onChange={(v) =>
-              setDoc((p) => ({ ...p, invoice: { ...p.invoice, invoiceDate: v } }))
-            }
-            placeholder='例如: "2026-01-11"（YYYY-MM-DD）'
-          />
-        </Cell>
-        <Cell title="TRADE TERMS">
-          <Input
-            value={doc.invoice.tradeTerms}
-            onChange={(v) =>
-              setDoc((p) => ({ ...p, invoice: { ...p.invoice, tradeTerms: v } }))
-            }
-            placeholder='例如: "FOB / CIF / EXW / DAP"'
-          />
-        </Cell>
-        <Cell title="EORI NO.">
-          <Input
-            value={doc.buyer.eoriNo}
-            onChange={(v) => setDoc((p) => ({ ...p, buyer: { ...p.buyer, eoriNo: v } }))}
-            placeholder='例如: "IE4145006KH"（EORI清关号，如适用）'
-          />
-        </Cell>
-        <Cell title="CURRENCY">
-          <Input
-            value={doc.invoice.currency}
-            onChange={(v) =>
-              setDoc((p) => ({ ...p, invoice: { ...p.invoice, currency: v } }))
-            }
-            placeholder='例如: "CNY / EUR / USD"（ISO货币代码）'
-          />
-        </Cell>
+          <View className="popupSectionTitle">INVOICE</View>
 
-        <View className="popupFooter">
+          {/* 小字段两列排版：更不挤 */}
+          <View className="formGrid2">
+            <View className="formItem">
+              <Text className="formLabel">INVOICE NO.</Text>
+              <Input
+                value={doc.invoice.invoiceNo}
+                onChange={(v) =>
+                  setDoc((p) => ({
+                    ...p,
+                    invoice: { ...p.invoice, invoiceNo: v },
+                  }))
+                }
+                placeholder='例如: "GSAM240109001"'
+              />
+            </View>
+
+            <View className="formItem">
+              <Text className="formLabel">INVOICE DATE</Text>
+              <Input
+                value={doc.invoice.invoiceDate}
+                onChange={(v) =>
+                  setDoc((p) => ({
+                    ...p,
+                    invoice: { ...p.invoice, invoiceDate: v },
+                  }))
+                }
+                placeholder='例如: "2026-01-11"'
+              />
+            </View>
+
+            <View className="formItem">
+              <Text className="formLabel">TRADE TERMS</Text>
+              <Input
+                value={doc.invoice.tradeTerms}
+                onChange={(v) =>
+                  setDoc((p) => ({
+                    ...p,
+                    invoice: { ...p.invoice, tradeTerms: v },
+                  }))
+                }
+                placeholder='例如: "FOB / CIF / EXW / DAP"'
+              />
+            </View>
+
+            <View className="formItem">
+              <Text className="formLabel">CURRENCY</Text>
+              <Input
+                value={doc.invoice.currency}
+                onChange={(v) =>
+                  setDoc((p) => ({
+                    ...p,
+                    invoice: { ...p.invoice, currency: v },
+                  }))
+                }
+                placeholder='例如: "CNY / EUR / USD"'
+              />
+            </View>
+
+            <View className="formItem full">
+              <Text className="formLabel">EORI NO.</Text>
+              <Input
+                value={doc.buyer.eoriNo}
+                onChange={(v) =>
+                  setDoc((p) => ({ ...p, buyer: { ...p.buyer, eoriNo: v } }))
+                }
+                placeholder='例如: "IE4145006KH"（EORI清关号，如适用）'
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Footer 固定 */}
+        <View className="popupFooter stickyBottom">
           <Button block type="primary" onClick={() => setShowEditBuyerInvoice(false)}>
             保存
           </Button>
         </View>
       </Popup>
 
-      {/* ====== Logistics Popup ====== */}
+{/* ====== Logistics Popup ====== */}
       <Popup
         visible={showEditLogistics}
         position="bottom"
@@ -640,161 +683,161 @@ export default function ReconcileCreate() {
         </View>
       </Popup>
 
-		{/* ====== Item Modal ====== */}
-	  <Popup
-	  visible={showItemModal}
-	  position="bottom"
-	  onClose={() => setShowItemModal(false)}
-	  className="itemPopup"
-	  >
-	  {/* Header 固定 */}
-	  <View className="popupHeader stickyTop">
-	  <Text className="popupTitle">
-	  {editingIndex >= 0 ? "编辑 Item" : "添加 Item"}
-	  </Text>
-	  <Button size="small" type="default" onClick={() => setShowItemModal(false)}>
-	  关闭
-	  </Button>
-	  </View>
+    {/* ====== Item Modal ====== */}
+    <Popup
+    visible={showItemModal}
+    position="bottom"
+    onClose={() => setShowItemModal(false)}
+    className="itemPopup"
+    >
+    {/* Header 固定 */}
+    <View className="popupHeader stickyTop">
+    <Text className="popupTitle">
+    {editingIndex >= 0 ? "编辑 Item" : "添加 Item"}
+    </Text>
+    <Button size="small" type="default" onClick={() => setShowItemModal(false)}>
+    关闭
+    </Button>
+    </View>
 
-	  {/* 内容可滚动 */}
-	  <View className="popupBody scrollY">
+    {/* 内容可滚动 */}
+    <View className="popupBody scrollY">
 
-	  {/* 长字段：单独一行 */}
-	  <View className="field full">
-	  <Text className="label">Product Name（货品名称）*</Text>
-	  <Input
-	  value={itemForm.productName}
-	  onChange={(v) => setItemForm((p) => ({ ...p, productName: v }))}
-	  placeholder='例如: "Electric Scooter"'
-	  />
-	  </View>
+    {/* 长字段：单独一行 */}
+    <View className="field full">
+    <Text className="label">Product Name（货品名称）*</Text>
+    <Input
+    value={itemForm.productName}
+    onChange={(v) => setItemForm((p) => ({ ...p, productName: v }))}
+    placeholder='例如: "Electric Scooter"'
+    />
+    </View>
 
-	  <View className="field full">
-	  <Text className="label">MARKS & Nos（唛头）</Text>
-	  <Input
-	  value={itemForm.marks}
-	  onChange={(v) => setItemForm((p) => ({ ...p, marks: v }))}
-	  placeholder='例如: "CTN-001~010"（纸箱编号范围）'
-	  />
-	  </View>
+    <View className="field full">
+    <Text className="label">MARKS & Nos（唛头）</Text>
+    <Input
+    value={itemForm.marks}
+    onChange={(v) => setItemForm((p) => ({ ...p, marks: v }))}
+    placeholder='例如: "CTN-001~010"（纸箱编号范围）'
+    />
+    </View>
 
-	  {/* 3列网格：短字段集中排 */}
-	  <View className="grid3">
-	  <View className="field">
-	  <Text className="label">Tracking No</Text>
-	  <Input
-	  value={itemForm.trackingNo}
-	  onChange={(v) => setItemForm((p) => ({ ...p, trackingNo: v }))}
-	  placeholder='例如: "GLS123456789"'
-	  />
-	  </View>
+    {/* 3列网格：短字段集中排 */}
+    <View className="grid3">
+    <View className="field">
+    <Text className="label">Tracking No</Text>
+    <Input
+    value={itemForm.trackingNo}
+    onChange={(v) => setItemForm((p) => ({ ...p, trackingNo: v }))}
+    placeholder='例如: "GLS123456789"'
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">HS Code</Text>
-	  <Input
-	  value={itemForm.hsCode}
-	  onChange={(v) => setItemForm((p) => ({ ...p, hsCode: v }))}
-	  placeholder='例如: "87116090"'
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">HS Code</Text>
+    <Input
+    value={itemForm.hsCode}
+    onChange={(v) => setItemForm((p) => ({ ...p, hsCode: v }))}
+    placeholder='例如: "87116090"'
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">Material</Text>
-	  <Input
-	  value={itemForm.material}
-	  onChange={(v) => setItemForm((p) => ({ ...p, material: v }))}
-	  placeholder='例如: "Aluminium Alloy"'
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">Material</Text>
+    <Input
+    value={itemForm.material}
+    onChange={(v) => setItemForm((p) => ({ ...p, material: v }))}
+    placeholder='例如: "Aluminium Alloy"'
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">Units (pcs)*</Text>
-	  <Input
-	  type="digit"
-	  value={itemForm.unitsPcs}
-	  onChange={(v) => setItemForm((p) => ({ ...p, unitsPcs: v }))}
-	  placeholder="例如: 10"
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">Units (pcs)*</Text>
+    <Input
+    type="digit"
+    value={itemForm.unitsPcs}
+    onChange={(v) => setItemForm((p) => ({ ...p, unitsPcs: v }))}
+    placeholder="例如: 10"
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">Packages</Text>
-	  <Input
-	  type="digit"
-	  value={itemForm.quantityPackages}
-	  onChange={(v) => setItemForm((p) => ({ ...p, quantityPackages: v }))}
-	  placeholder="例如: 2（纸箱/包裹数）"
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">Packages</Text>
+    <Input
+    type="digit"
+    value={itemForm.quantityPackages}
+    onChange={(v) => setItemForm((p) => ({ ...p, quantityPackages: v }))}
+    placeholder="例如: 2（纸箱/包裹数）"
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">Unit Price*</Text>
-	  <Input
-	  type="digit"
-	  value={itemForm.unitPriceCny}
-	  onChange={(v) => setItemForm((p) => ({ ...p, unitPriceCny: v }))}
-	  placeholder="例如: 299.99"
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">Unit Price*</Text>
+    <Input
+    type="digit"
+    value={itemForm.unitPriceCny}
+    onChange={(v) => setItemForm((p) => ({ ...p, unitPriceCny: v }))}
+    placeholder="例如: 299.99"
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">Net Wt (kg)</Text>
-	  <Input
-	  type="digit"
-	  value={itemForm.netWeight}
-	  onChange={(v) => setItemForm((p) => ({ ...p, netWeight: v }))}
-	  placeholder="例如: 120.5"
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">Net Wt (kg)</Text>
+    <Input
+    type="digit"
+    value={itemForm.netWeight}
+    onChange={(v) => setItemForm((p) => ({ ...p, netWeight: v }))}
+    placeholder="例如: 120.5"
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">Gross Wt (kg)</Text>
-	  <Input
-	  type="digit"
-	  value={itemForm.grossWeight}
-	  onChange={(v) => setItemForm((p) => ({ ...p, grossWeight: v }))}
-	  placeholder="例如: 135"
-	  />
-	  </View>
+    <View className="field">
+    <Text className="label">Gross Wt (kg)</Text>
+    <Input
+    type="digit"
+    value={itemForm.grossWeight}
+    onChange={(v) => setItemForm((p) => ({ ...p, grossWeight: v }))}
+    placeholder="例如: 135"
+    />
+    </View>
 
-	  <View className="field">
-	  <Text className="label">CBM (m³)</Text>
-	  <Input
-	  type="digit"
-	  value={itemForm.cbm}
-	  onChange={(v) => setItemForm((p) => ({ ...p, cbm: v }))}
-	  placeholder="例如: 1.25"
-	  />
-	  </View>
-	  </View>
+    <View className="field">
+    <Text className="label">CBM (m³)</Text>
+    <Input
+    type="digit"
+    value={itemForm.cbm}
+    onChange={(v) => setItemForm((p) => ({ ...p, cbm: v }))}
+    placeholder="例如: 1.25"
+    />
+    </View>
+    </View>
 
-	  {/* 条码预留：单独一行更舒服 */}
-	  <View className="field full">
-	  <Text className="label">Barcode / QR（预留）</Text>
-	  <Input
-	  value={itemForm.barcode}
-	  onChange={(v) => setItemForm((p) => ({ ...p, barcode: v }))}
-	  placeholder='例如: "EAN1234567890123"（可留空）'
-	  />
-	  </View>
+    {/* 条码预留：单独一行更舒服 */}
+    <View className="field full">
+    <Text className="label">Barcode / QR（预留）</Text>
+    <Input
+    value={itemForm.barcode}
+    onChange={(v) => setItemForm((p) => ({ ...p, barcode: v }))}
+    placeholder='例如: "EAN1234567890123"（可留空）'
+    />
+    </View>
 
-	  {/* 自动计算：放在内容末尾但仍在滚动区 */}
-	  <View className="calcRow">
-	  <Text className="muted">Total Amount（自动）</Text>
-	  <Text className="strong">
-	  {money(toNum(itemForm.unitsPcs) * toNum(itemForm.unitPriceCny))}
-	  </Text>
-	  </View>
-	  </View>
+    {/* 自动计算：放在内容末尾但仍在滚动区 */}
+    <View className="calcRow">
+    <Text className="muted">Total Amount（自动）</Text>
+    <Text className="strong">
+    {money(toNum(itemForm.unitsPcs) * toNum(itemForm.unitPriceCny))}
+    </Text>
+    </View>
+    </View>
 
-	  {/* Footer 固定 */}
-	  <View className="popupFooter stickyBottom">
-	  <Button block type="primary" onClick={saveItem}>
-	  保存 Item
-	  </Button>
-	  </View>
-	  </Popup>
+    {/* Footer 固定 */}
+    <View className="popupFooter stickyBottom">
+    <Button block type="primary" onClick={saveItem}>
+    保存 Item
+    </Button>
+    </View>
+    </Popup>
 
     </View>
   );
