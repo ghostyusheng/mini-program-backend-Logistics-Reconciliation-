@@ -26,9 +26,9 @@ function todayISO() {
 }
 
 function genInvoiceNo() {
-  // 你可以换成你们自己的规则（比如 GSAM + 日期 + 自增）
-  const ts = Date.now().toString().slice(-6);
-  return `GSAM${ts}`;
+  // 公司自己的规则（比如 INVO E2G + 日期 + 自增）
+  const ts = Date.now().toString();
+  return `INVOE2G${ts}`;
 }
 
 function toNum(v) {
@@ -66,11 +66,11 @@ export default function ReconcileCreate() {
     title: "周期对账单",
     seller: defaultSeller,
     buyer: {
-      toName: "Bite of China",
-      toAddress: "59 George's Street Lower, Dún Laoghaire, Dublin A96 EW71",
-      toTel: "01 2311726",
-      vatNo: "4145006KH",
-      eoriNo: "4145006KH",
+      toName: "",
+      toAddress: "",
+      toTel: "",
+      vatNo: "",
+      eoriNo: "",
     },
     invoice: {
       invoiceNo: genInvoiceNo(),
