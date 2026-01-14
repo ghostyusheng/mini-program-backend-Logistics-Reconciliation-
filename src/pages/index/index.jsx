@@ -54,9 +54,20 @@ function friendlyTime(s) {
   return String(s).slice(0, 16);
 }
 
+function getRole() {
+  return Taro.getStorageSync("x_role") || "customer";
+}
+
+function isAdmin(role) {
+  return String(role || "").toLowerCase() === "admin";
+}
+
 export default function ReconcileIndex() {
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState([]);
+
+  const role = useMemo(() => getRole(), []);
+  const admin = useMemo(() => isAdmin(role), [role]);
 
   const currency = useMemo(() => {
     // list endpoint does not return currency; keep a constant for now
@@ -159,7 +170,7 @@ export default function ReconcileIndex() {
         <View className="idxList">
           {list.map((it) => (
             <View key={it.id} className="idxCard" onClick={() => goDetail(it.id)}>
-              <View className="idxCardTop">
+              <View className="idxCardTop">{admin ? it.customer_display_name : ""}</View>
                 <Text className="idxTitle">{it.invoice_no || "-"}</Text>
                 <View className="idxTags">
                   {it.editable ? (
@@ -175,7 +186,6 @@ export default function ReconcileIndex() {
                     {currency}
                   </Tag>
                 </View>
-              </View>
 
               <View className="idxRow">
                 <Text className="idxK">Invoice Date</Text>
