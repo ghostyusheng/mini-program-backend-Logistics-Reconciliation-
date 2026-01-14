@@ -483,23 +483,26 @@ export default function ReconcileDetail() {
 
   if (!data) {
     return (
-      <View className="page">
-        <View className="header">
-          <Button size="small" type="default" onClick={goBack}>
-            返回
-          </Button>
-          <Text className="h1">对账单详情</Text>
-          <View style={{ width: 52 }} />
-        </View>
+      <View className="reconcile-detail">
+        <View className="page">
+          <View className="header">
+            <Button size="small" type="default" onClick={goBack}>
+              返回
+            </Button>
+            <Text className="h1">对账单详情</Text>
+            <View style={{ width: 52 }} />
+          </View>
 
-        <View className="tips">
-          <Text className="muted">{loading ? "加载中..." : "暂无数据"}</Text>
+          <View className="tips">
+            <Text className="muted">{loading ? "加载中..." : "暂无数据"}</Text>
+          </View>
         </View>
       </View>
     );
   }
 
   return (
+    <View className="reconcile-detail">
     <View className="page">
       <View className="fab-home" onClick={()=>Taro.reLaunch({ url: '/pages/index/index' })}>
         <Text className="fab-icon">🏠</Text>
@@ -1177,6 +1180,6 @@ export default function ReconcileDetail() {
           </Button>
         </View>
       </Popup>
-    </View>
+    </View></View>
   );
 }
