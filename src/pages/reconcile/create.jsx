@@ -27,7 +27,7 @@ function todayISO() {
 
 function genInvoiceNo() {
   // 公司自己的规则（比如 INVO E2G + 日期 + 自增）
-  const ts = Date.now().toString();
+  const ts = Date.now().toString().slice(-8);
   return `INVOE2G${ts}`;
 }
 
