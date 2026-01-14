@@ -1,24 +1,24 @@
-.page {
+.cr-page {
   padding: 14px 14px 88px;
   background: #f6f7fb;
   min-height: 100vh;
 }
 
-.header {
+.cr-header {
   padding: 10px 4px 14px;
 }
-.h1 {
+.cr-h1 {
   font-size: 20px;
   font-weight: 700;
 }
-.h2 {
+.cr-h2 {
   display: block;
   margin-top: 6px;
   font-size: 13px;
   color: #666;
 }
 
-.card {
+.cr-card {
   background: #fff;
   border-radius: 14px;
   padding: 12px;
@@ -26,41 +26,41 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
-.cardRow {
+.cr-cardRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
 }
 
-.cardTitle {
+.cr-cardTitle {
   font-size: 14px;
   font-weight: 650;
   color: #222;
 }
 
-.kv {
+.cr-kv {
   display: flex;
   margin-top: 6px;
 }
-.k {
+.cr-k {
   width: 92px;
   color: #888;
   font-size: 12px;
 }
-.v {
+.cr-v {
   flex: 1;
   font-size: 12px;
   color: #222;
 }
 
-.grid2 {
+.cr-grid2 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 @media (min-width: 420px) {
-  .grid2 {
+  .cr-grid2 {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -77,80 +77,80 @@
   }
 }
 
-.block {
+.cr-block {
   background: #f7f8fa;
   border-radius: 12px;
   padding: 10px;
 }
-.blockTitle {
+.cr-blockTitle {
   display: block;
   font-size: 13px;
   font-weight: 650;
   margin-bottom: 6px;
 }
 
-.empty {
+.cr-empty {
   padding: 18px 0 6px;
   text-align: center;
 }
 
-.itemList {
+.cr-itemList {
   margin-top: 10px;
 }
 
-.itemCard {
+.cr-itemCard {
   background: #f7f8fa;
   border-radius: 12px;
   padding: 10px;
   margin-bottom: 10px;
 }
 
-.itemTop {
+.cr-itemTop {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.itemName {
+.cr-itemName {
   font-size: 14px;
   font-weight: 650;
   color: #111;
 }
 
-.itemMeta {
+.cr-itemMeta {
   margin-top: 6px;
   font-size: 12px;
   color: #222;
 }
 
-.muted {
+.cr-muted {
   color: rgba(0, 0, 0, 0.55);
   font-size: 12px;
 }
-.dot {
+.cr-dot {
   margin: 0 6px;
   color: #bbb;
 }
-.strong {
+.cr-strong {
   font-weight: 700;
 }
 
-.itemActions {
+.cr-itemActions {
   margin-top: 10px;
   display: flex;
   gap: 10px;
 }
 
-.sumRow {
+.cr-sumRow {
   margin-top: 10px;
   display: flex;
   justify-content: space-between;
   font-size: 13px;
 }
-.sum {
+.cr-sum {
   font-weight: 750;
 }
 
-.bottomBar {
+.cr-bottomBar {
   position: fixed;
   left: 14px;
   right: 14px;
@@ -161,32 +161,32 @@
 /* =========================
    Popup (通用容器)
    ========================= */
-.popup {
+.cr-popup {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   overflow: hidden;
   background: #fff;
 }
 
-.popupHeader {
+.cr-popupHeader {
   padding: 12px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #fff;
 }
-.popupTitle {
+.cr-popupTitle {
   font-size: 16px;
   font-weight: 700;
 }
 
-.popupSectionTitle {
+.cr-popupSectionTitle {
   padding: 10px 14px 0;
   font-size: 13px;
   color: #666;
 }
 
-.popupFooter {
+.cr-popupFooter {
   padding: 12px 14px;
   background: #fff;
 }
@@ -195,40 +195,40 @@
    ✅ 关键：弹窗结构化布局
    Header/Footer 固定，中间滚动
    ========================= */
-.itemPopup {
+.cr-itemPopup {
   height: 82vh; /* 你原来的 item 弹窗高度 */
   display: flex;
   flex-direction: column;
 }
 
 /* ✅ 新增：TO+INVOICE 更高一点，避免挤 */
-.buyerPopup {
+.cr-buyerPopup {
   height: 88vh;
   display: flex;
   flex-direction: column;
 }
 
-.stickyTop {
+.cr-stickyTop {
   position: sticky;
   top: 0;
   z-index: 10;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.stickyBottom {
+.cr-stickyBottom {
   position: sticky;
   bottom: 0;
   z-index: 10;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.popupBody {
+.cr-popupBody {
   flex: 1;
   padding: 12px 14px;
   background: #fff;
 }
 
-.scrollY {
+.cr-scrollY {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -236,7 +236,7 @@
 /* =========================
    表单字段布局（item / TO / invoice 通用）
    ========================= */
-.grid3 {
+.cr-grid3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
@@ -249,16 +249,16 @@
   gap: 10px;
 }
 
-.field {
+.cr-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-.field.full {
+.cr-field.cr-full {
   grid-column: 1 / -1;
 }
 
-.label {
+.cr-label {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.65);
 }
@@ -266,7 +266,7 @@
 /* =========================
    计算/汇总条：统一定义，避免重复覆盖
    ========================= */
-.calcRow {
+.cr-calcRow {
   margin-top: 12px;
   padding: 10px 12px;
   border-radius: 10px;

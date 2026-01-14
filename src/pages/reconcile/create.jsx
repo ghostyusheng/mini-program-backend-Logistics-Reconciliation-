@@ -246,19 +246,19 @@ export default function ReconcileCreate() {
 
   // ========== UI ==========
   return (
-    <View className="page">
+    <View className="cr-page">
             <View className="fab-home" onClick={()=>Taro.reLaunch({ url: '/pages/index/index' })}>
               <Text className="fab-icon">🏠</Text>
             </View>
-      <View className="header">
-        <Text className="h1">创建运输货物清单</Text>
-        <Text className="h2">按 Commercial Invoice & Packing List 填写</Text>
+      <View className="cr-header">
+        <Text className="cr-h1">创建运输货物清单</Text>
+        <Text className="cr-h2">按 Commercial Invoice & Packing List 填写</Text>
       </View>
 
       {/* A) Seller Header */}
-      <View className="card">
-        <View className="cardRow">
-          <Text className="cardTitle">SELLER / EXPORTER</Text>
+      <View className="cr-card">
+        <View className="cr-cardRow">
+          <Text className="cr-cardTitle">SELLER / EXPORTER</Text>
           <Button
             size="small"
             type="default"
@@ -268,20 +268,20 @@ export default function ReconcileCreate() {
           </Button>
         </View>
 
-        <View className="kv">
-          <Text className="k">公司</Text>
-          <Text className="v">{doc.seller.name}</Text>
+        <View className="cr-kv">
+          <Text className="cr-k">公司</Text>
+          <Text className="cr-v">{doc.seller.name}</Text>
         </View>
-        <View className="kv">
-          <Text className="k">地址</Text>
-          <Text className="v">{doc.seller.address}</Text>
+        <View className="cr-kv">
+          <Text className="cr-k">地址</Text>
+          <Text className="cr-v">{doc.seller.address}</Text>
         </View>
       </View>
 
       {/* B) Buyer + Invoice meta */}
-      <View className="card">
-        <View className="cardRow">
-          <Text className="cardTitle">TO + INVOICE META</Text>
+      <View className="cr-card">
+        <View className="cr-cardRow">
+          <Text className="cr-cardTitle">TO + INVOICE META</Text>
           <Button
             size="small"
             type="default"
@@ -291,57 +291,57 @@ export default function ReconcileCreate() {
           </Button>
         </View>
 
-        <View className="grid2">
-          <View className="block">
-            <Text className="blockTitle">TO（收货人）</Text>
-            <View className="kv">
-              <Text className="k">公司</Text>
-              <Text className="v">{doc.buyer.toName || "-"}</Text>
+        <View className="cr-grid2">
+          <View className="cr-block">
+            <Text className="cr-blockTitle">TO（收货人）</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">公司</Text>
+              <Text className="cr-v">{doc.buyer.toName || "-"}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">地址</Text>
-              <Text className="v">{doc.buyer.toAddress || "-"}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">地址</Text>
+              <Text className="cr-v">{doc.buyer.toAddress || "-"}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">电话</Text>
-              <Text className="v">{doc.buyer.toTel || "-"}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">电话</Text>
+              <Text className="cr-v">{doc.buyer.toTel || "-"}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">VAT NO.</Text>
-              <Text className="v">{doc.buyer.vatNo || "-"}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">VAT NO.</Text>
+              <Text className="cr-v">{doc.buyer.vatNo || "-"}</Text>
             </View>
           </View>
 
-          <View className="block">
-            <Text className="blockTitle">INVOICE</Text>
-            <View className="kv">
-              <Text className="k">INVOICE NO.</Text>
-              <Text className="v">{doc.invoice.invoiceNo}</Text>
+          <View className="cr-block">
+            <Text className="cr-blockTitle">INVOICE</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">INVOICE NO.</Text>
+              <Text className="cr-v">{doc.invoice.invoiceNo}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">INVOICE DATE</Text>
-              <Text className="v">{doc.invoice.invoiceDate}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">INVOICE DATE</Text>
+              <Text className="cr-v">{doc.invoice.invoiceDate}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">TRADE TERMS</Text>
-              <Text className="v">{doc.invoice.tradeTerms}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">TRADE TERMS</Text>
+              <Text className="cr-v">{doc.invoice.tradeTerms}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">EORI NO.</Text>
-              <Text className="v">{doc.buyer.eoriNo || "-"}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">EORI NO.</Text>
+              <Text className="cr-v">{doc.buyer.eoriNo || "-"}</Text>
             </View>
-            <View className="kv">
-              <Text className="k">CURRENCY</Text>
-              <Text className="v">{doc.invoice.currency}</Text>
+            <View className="cr-kv">
+              <Text className="cr-k">CURRENCY</Text>
+              <Text className="cr-v">{doc.invoice.currency}</Text>
             </View>
           </View>
         </View>
       </View>
 
       {/* Logistics line */}
-      <View className="card">
-        <View className="cardRow">
-          <Text className="cardTitle">LOGISTICS</Text>
+      <View className="cr-card">
+        <View className="cr-cardRow">
+          <Text className="cr-cardTitle">LOGISTICS</Text>
           <Button
             size="small"
             type="default"
@@ -351,41 +351,41 @@ export default function ReconcileCreate() {
           </Button>
         </View>
 
-        <View className="kv">
-          <Text className="k">From</Text>
-          <Text className="v">{doc.logistics.from}</Text>
+        <View className="cr-kv">
+          <Text className="cr-k">From</Text>
+          <Text className="cr-v">{doc.logistics.from}</Text>
         </View>
-        <View className="kv">
-          <Text className="k">To</Text>
-          <Text className="v">{doc.logistics.to}</Text>
+        <View className="cr-kv">
+          <Text className="cr-k">To</Text>
+          <Text className="cr-v">{doc.logistics.to}</Text>
         </View>
-        <View className="kv">
-          <Text className="k">Transport</Text>
-          <Text className="v">{doc.logistics.transport}</Text>
+        <View className="cr-kv">
+          <Text className="cr-k">Transport</Text>
+          <Text className="cr-v">{doc.logistics.transport}</Text>
         </View>
       </View>
 
       {/* Items */}
-      <View className="card">
-        <View className="cardRow">
-          <Text className="cardTitle">ITEMS</Text>
+      <View className="cr-card">
+        <View className="cr-cardRow">
+          <Text className="cr-cardTitle">ITEMS</Text>
           <Button size="small" type="primary" onClick={openAddItem}>
             + 添加 Item
           </Button>
         </View>
 
         {doc.items.length === 0 ? (
-          <View className="empty">
-            <Text className="muted">暂无 Item，请点击 “+ 添加 Item”</Text>
+          <View className="cr-empty">
+            <Text className="cr-muted">暂无 Item，请点击 “+ 添加 Item”</Text>
           </View>
         ) : (
-          <View className="itemList">
+          <View className="cr-itemList">
             {doc.items.map((it, idx) => {
               const amount = toNum(it.unitsPcs) * toNum(it.unitPriceCny);
               return (
-                <View key={idx} className="itemCard">
-                  <View className="itemTop">
-                    <Text className="itemName">
+                <View key={idx} className="cr-itemCard">
+                  <View className="cr-itemTop">
+                    <Text className="cr-itemName">
                       {idx + 1}. {it.productName}
                     </Text>
                     <Tag type="primary" round>
@@ -393,41 +393,41 @@ export default function ReconcileCreate() {
                     </Tag>
                   </View>
 
-                  <View className="itemMeta">
-                    <Text className="muted">HS:</Text>{" "}
+                  <View className="cr-itemMeta">
+                    <Text className="cr-muted">HS:</Text>{" "}
                     <Text>{it.hsCode || "-"}</Text>
-                    <Text className="dot">·</Text>
-                    <Text className="muted">Material:</Text>{" "}
+                    <Text className="cr-dot">·</Text>
+                    <Text className="cr-muted">Material:</Text>{" "}
                     <Text>{it.material || "-"}</Text>
                   </View>
 
-                  <View className="itemMeta">
-                    <Text className="muted">UNITS-PCS:</Text>{" "}
+                  <View className="cr-itemMeta">
+                    <Text className="cr-muted">UNITS-PCS:</Text>{" "}
                     <Text>{it.unitsPcs}</Text>
-                    <Text className="dot">·</Text>
-                    <Text className="muted">Packages:</Text>{" "}
+                    <Text className="cr-dot">·</Text>
+                    <Text className="cr-muted">Packages:</Text>{" "}
                     <Text>{it.quantityPackages || "-"}</Text>
                   </View>
 
-                  <View className="itemMeta">
-                    <Text className="muted">Unit Price:</Text>{" "}
+                  <View className="cr-itemMeta">
+                    <Text className="cr-muted">Unit Price:</Text>{" "}
                     <Text>{money(it.unitPriceCny)}</Text>
-                    <Text className="dot">·</Text>
-                    <Text className="muted">Total:</Text>{" "}
-                    <Text className="strong">{money(amount)}</Text>
+                    <Text className="cr-dot">·</Text>
+                    <Text className="cr-muted">Total:</Text>{" "}
+                    <Text className="cr-strong">{money(amount)}</Text>
                   </View>
 
-                  <View className="itemMeta">
-                    <Text className="muted">Net/Gross:</Text>{" "}
+                  <View className="cr-itemMeta">
+                    <Text className="cr-muted">Net/Gross:</Text>{" "}
                     <Text>
                       {it.netWeight || "-"} / {it.grossWeight || "-"}
                     </Text>
-                    <Text className="dot">·</Text>
-                    <Text className="muted">CBM:</Text>{" "}
+                    <Text className="cr-dot">·</Text>
+                    <Text className="cr-muted">CBM:</Text>{" "}
                     <Text>{it.cbm || "-"}</Text>
                   </View>
 
-                  <View className="itemActions">
+                  <View className="cr-itemActions">
                     <Button size="small" type="default" onClick={() => openEditItem(idx)}>
                       编辑
                     </Button>
@@ -441,14 +441,14 @@ export default function ReconcileCreate() {
           </View>
         )}
 
-        <View className="sumRow">
-          <Text className="muted">Total Amount（合计）:</Text>
-          <Text className="sum">{money(totals.totalAmount)} {doc.invoice.currency}</Text>
+        <View className="cr-sumRow">
+          <Text className="cr-muted">Total Amount（合计）:</Text>
+          <Text className="cr-sum">{money(totals.totalAmount)} {doc.invoice.currency}</Text>
         </View>
       </View>
 
       {/* Bottom bar */}
-      <View className="bottomBar">
+      <View className="cr-bottomBar">
         <Button block type="primary" onClick={saveDraftLocal}>
           保存并进入详情
         </Button>
@@ -459,10 +459,10 @@ export default function ReconcileCreate() {
         visible={showEditSeller}
         position="bottom"
         onClose={() => setShowEditSeller(false)}
-        className="popup"
+        className="cr-popup"
       >
-        <View className="popupHeader">
-          <Text className="popupTitle">编辑 SELLER</Text>
+        <View className="cr-popupHeader">
+          <Text className="cr-popupTitle">编辑 SELLER</Text>
           <Button size="small" type="default" onClick={() => setShowEditSeller(false)}>
             关闭
           </Button>
@@ -489,7 +489,7 @@ export default function ReconcileCreate() {
           />
         </Cell>
 
-        <View className="popupFooter">
+        <View className="cr-popupFooter">
           <Button block type="primary" onClick={() => setShowEditSeller(false)}>
             保存
           </Button>
@@ -501,11 +501,11 @@ export default function ReconcileCreate() {
         visible={showEditBuyerInvoice}
         position="bottom"
         onClose={() => setShowEditBuyerInvoice(false)}
-        className="buyerPopup"
+        className="cr-buyerPopup"
       >
         {/* Header 固定 */}
-        <View className="popupHeader stickyTop">
-          <Text className="popupTitle">编辑 TO + INVOICE</Text>
+        <View className="cr-popupHeader cr-stickyTop">
+          <Text className="cr-popupTitle">编辑 TO + INVOICE</Text>
           <Button
             size="small"
             type="default"
@@ -516,8 +516,8 @@ export default function ReconcileCreate() {
         </View>
 
         {/* 内容可滚动：避免小屏拥挤 */}
-        <View className="popupBody scrollY">
-          <View className="popupSectionTitle">TO（收货人）</View>
+        <View className="cr-popupBody cr-scrollY">
+          <View className="cr-popupSectionTitle">TO（收货人）</View>
           <Cell title="TO">
             <Input
               value={doc.buyer.toName}
@@ -557,12 +557,12 @@ export default function ReconcileCreate() {
             />
           </Cell>
 
-          <View className="popupSectionTitle">INVOICE</View>
+          <View className="cr-popupSectionTitle">INVOICE</View>
 
           {/* 小字段两列排版：更不挤 */}
-          <View className="formGrid2">
-            <View className="formItem">
-              <Text className="formLabel">INVOICE NO.</Text>
+          <View className="cr-formGrid2">
+            <View className="cr-formItem">
+              <Text className="cr-formLabel">INVOICE NO.</Text>
               <Input
                 value={doc.invoice.invoiceNo}
                 onChange={(v) =>
@@ -575,8 +575,8 @@ export default function ReconcileCreate() {
               />
             </View>
 
-            <View className="formItem">
-              <Text className="formLabel">INVOICE DATE</Text>
+            <View className="cr-formItem">
+              <Text className="cr-formLabel">INVOICE DATE</Text>
               <Input
                 value={doc.invoice.invoiceDate}
                 onChange={(v) =>
@@ -589,8 +589,8 @@ export default function ReconcileCreate() {
               />
             </View>
 
-            <View className="formItem">
-              <Text className="formLabel">TRADE TERMS</Text>
+            <View className="cr-formItem">
+              <Text className="cr-formLabel">TRADE TERMS</Text>
               <Input
                 value={doc.invoice.tradeTerms}
                 onChange={(v) =>
@@ -603,8 +603,8 @@ export default function ReconcileCreate() {
               />
             </View>
 
-            <View className="formItem">
-              <Text className="formLabel">CURRENCY</Text>
+            <View className="cr-formItem">
+              <Text className="cr-formLabel">CURRENCY</Text>
               <Input
                 value={doc.invoice.currency}
                 onChange={(v) =>
@@ -617,8 +617,8 @@ export default function ReconcileCreate() {
               />
             </View>
 
-            <View className="formItem full">
-              <Text className="formLabel">EORI NO.</Text>
+            <View className="cr-formItem cr-full">
+              <Text className="cr-formLabel">EORI NO.</Text>
               <Input
                 value={doc.buyer.eoriNo}
                 onChange={(v) =>
@@ -631,7 +631,7 @@ export default function ReconcileCreate() {
         </View>
 
         {/* Footer 固定 */}
-        <View className="popupFooter stickyBottom">
+        <View className="cr-popupFooter cr-stickyBottom">
           <Button block type="primary" onClick={() => setShowEditBuyerInvoice(false)}>
             保存
           </Button>
@@ -643,10 +643,10 @@ export default function ReconcileCreate() {
         visible={showEditLogistics}
         position="bottom"
         onClose={() => setShowEditLogistics(false)}
-        className="popup"
+        className="cr-popup"
       >
-        <View className="popupHeader">
-          <Text className="popupTitle">编辑 LOGISTICS</Text>
+        <View className="cr-popupHeader">
+          <Text className="cr-popupTitle">编辑 LOGISTICS</Text>
           <Button size="small" type="default" onClick={() => setShowEditLogistics(false)}>
             关闭
           </Button>
@@ -676,7 +676,7 @@ export default function ReconcileCreate() {
           />
         </Cell>
 
-        <View className="popupFooter">
+        <View className="cr-popupFooter">
           <Button block type="primary" onClick={() => setShowEditLogistics(false)}>
             保存
           </Button>
@@ -688,11 +688,11 @@ export default function ReconcileCreate() {
     visible={showItemModal}
     position="bottom"
     onClose={() => setShowItemModal(false)}
-    className="itemPopup"
+    className="cr-itemPopup"
     >
     {/* Header 固定 */}
-    <View className="popupHeader stickyTop">
-    <Text className="popupTitle">
+    <View className="cr-popupHeader cr-stickyTop">
+    <Text className="cr-popupTitle">
     {editingIndex >= 0 ? "编辑 Item" : "添加 Item"}
     </Text>
     <Button size="small" type="default" onClick={() => setShowItemModal(false)}>
@@ -701,11 +701,11 @@ export default function ReconcileCreate() {
     </View>
 
     {/* 内容可滚动 */}
-    <View className="popupBody scrollY">
+    <View className="cr-popupBody cr-scrollY">
 
     {/* 长字段：单独一行 */}
-    <View className="field full">
-    <Text className="label">Product Name（货品名称）*</Text>
+    <View className="cr-field cr-full">
+    <Text className="cr-label">Product Name（货品名称）*</Text>
     <Input
     value={itemForm.productName}
     onChange={(v) => setItemForm((p) => ({ ...p, productName: v }))}
@@ -713,8 +713,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field full">
-    <Text className="label">MARKS & Nos（唛头）</Text>
+    <View className="cr-field cr-full">
+    <Text className="cr-label">MARKS & Nos（唛头）</Text>
     <Input
     value={itemForm.marks}
     onChange={(v) => setItemForm((p) => ({ ...p, marks: v }))}
@@ -723,9 +723,9 @@ export default function ReconcileCreate() {
     </View>
 
     {/* 3列网格：短字段集中排 */}
-    <View className="grid3">
-    <View className="field">
-    <Text className="label">Tracking No</Text>
+    <View className="cr-grid3">
+    <View className="cr-field">
+    <Text className="cr-label">Tracking No</Text>
     <Input
     value={itemForm.trackingNo}
     onChange={(v) => setItemForm((p) => ({ ...p, trackingNo: v }))}
@@ -733,8 +733,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">HS Code</Text>
+    <View className="cr-field">
+    <Text className="cr-label">HS Code</Text>
     <Input
     value={itemForm.hsCode}
     onChange={(v) => setItemForm((p) => ({ ...p, hsCode: v }))}
@@ -742,8 +742,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">Material</Text>
+    <View className="cr-field">
+    <Text className="cr-label">Material</Text>
     <Input
     value={itemForm.material}
     onChange={(v) => setItemForm((p) => ({ ...p, material: v }))}
@@ -751,8 +751,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">Units (pcs)*</Text>
+    <View className="cr-field">
+    <Text className="cr-label">Units (pcs)*</Text>
     <Input
     type="digit"
     value={itemForm.unitsPcs}
@@ -761,8 +761,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">Packages</Text>
+    <View className="cr-field">
+    <Text className="cr-label">Packages</Text>
     <Input
     type="digit"
     value={itemForm.quantityPackages}
@@ -771,8 +771,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">Unit Price*</Text>
+    <View className="cr-field">
+    <Text className="cr-label">Unit Price*</Text>
     <Input
     type="digit"
     value={itemForm.unitPriceCny}
@@ -781,8 +781,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">Net Wt (kg)</Text>
+    <View className="cr-field">
+    <Text className="cr-label">Net Wt (kg)</Text>
     <Input
     type="digit"
     value={itemForm.netWeight}
@@ -791,8 +791,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">Gross Wt (kg)</Text>
+    <View className="cr-field">
+    <Text className="cr-label">Gross Wt (kg)</Text>
     <Input
     type="digit"
     value={itemForm.grossWeight}
@@ -801,8 +801,8 @@ export default function ReconcileCreate() {
     />
     </View>
 
-    <View className="field">
-    <Text className="label">CBM (m³)</Text>
+    <View className="cr-field">
+    <Text className="cr-label">CBM (m³)</Text>
     <Input
     type="digit"
     value={itemForm.cbm}
@@ -813,8 +813,8 @@ export default function ReconcileCreate() {
     </View>
 
     {/* 条码预留：单独一行更舒服 */}
-    <View className="field full">
-    <Text className="label">Barcode / QR（预留）</Text>
+    <View className="cr-field cr-full">
+    <Text className="cr-label">Barcode / QR（预留）</Text>
     <Input
     value={itemForm.barcode}
     onChange={(v) => setItemForm((p) => ({ ...p, barcode: v }))}
@@ -823,16 +823,16 @@ export default function ReconcileCreate() {
     </View>
 
     {/* 自动计算：放在内容末尾但仍在滚动区 */}
-    <View className="calcRow">
-    <Text className="muted">Total Amount（自动）</Text>
-    <Text className="strong">
+    <View className="cr-calcRow">
+    <Text className="cr-muted">Total Amount（自动）</Text>
+    <Text className="cr-strong">
     {money(toNum(itemForm.unitsPcs) * toNum(itemForm.unitPriceCny))}
     </Text>
     </View>
     </View>
 
     {/* Footer 固定 */}
-    <View className="popupFooter stickyBottom">
+    <View className="cr-popupFooter cr-stickyBottom">
     <Button block type="primary" onClick={saveItem}>
     保存 Item
     </Button>

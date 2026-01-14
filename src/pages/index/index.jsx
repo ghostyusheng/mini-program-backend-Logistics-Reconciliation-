@@ -117,11 +117,11 @@ export default function ReconcileIndex() {
   };
 
   return (
-    <View className="page">
-      <View className="header">
-        <View className="headerLeft">
-          <Text className="h1">核对品名清单</Text>
-          <Text className="h2">
+    <View className="idxPage">
+      <View className="idxHeader">
+        <View className="idxHeaderLeft">
+          <Text className="idxH1">核对品名清单</Text>
+          <Text className="idxH2">
             客户:
             {CUSTOMER_ID ? (
               CUSTOMER_ID
@@ -146,22 +146,22 @@ export default function ReconcileIndex() {
       </View>
 
       {loading ? (
-        <View className="tips">
-          <Text className="muted">加载中...</Text>
+        <View className="idxTips">
+          <Text className="idxMuted">加载中...</Text>
         </View>
       ) : null}
 
       {list.length === 0 && !loading ? (
-        <View className="empty">
-          <Text className="muted">暂无对账单，点击右上角 “+ 创建”</Text>
+        <View className="idxEmpty">
+          <Text className="idxMuted">暂无对账单，点击右上角 “+ 创建”</Text>
         </View>
       ) : (
-        <View className="list">
+        <View className="idxList">
           {list.map((it) => (
-            <View key={it.id} className="card" onClick={() => goDetail(it.id)}>
-              <View className="cardTop">
-                <Text className="title">{it.invoice_no || "-"}</Text>
-                <View className="tags">
+            <View key={it.id} className="idxCard" onClick={() => goDetail(it.id)}>
+              <View className="idxCardTop">
+                <Text className="idxTitle">{it.invoice_no || "-"}</Text>
+                <View className="idxTags">
                   {it.editable ? (
                     <Tag type="success" round>
                       Editable
@@ -177,29 +177,29 @@ export default function ReconcileIndex() {
                 </View>
               </View>
 
-              <View className="row">
-                <Text className="k">Invoice Date</Text>
-                <Text className="v">{it.invoice_date || "-"}</Text>
+              <View className="idxRow">
+                <Text className="idxK">Invoice Date</Text>
+                <Text className="idxV">{it.invoice_date || "-"}</Text>
               </View>
 
-              <View className="row">
-                <Text className="k">Items</Text>
-                <Text className="v">{Number(it.item_count ?? 0)}</Text>
+              <View className="idxRow">
+                <Text className="idxK">Items</Text>
+                <Text className="idxV">{Number(it.item_count ?? 0)}</Text>
 
-                <Text className="dot">·</Text>
+                <Text className="idxDot">·</Text>
 
-                <Text className="k">Total</Text>
-                <Text className="v strong">
+                <Text className="idxK">Total</Text>
+                <Text className="idxV idxStrong">
                   {money(it.total_amount)} {currency}
                 </Text>
               </View>
 
-              <View className="row">
-                <Text className="k">Updated</Text>
-                <Text className="v">{friendlyTime(it.updated_at)}</Text>
+              <View className="idxRow">
+                <Text className="idxK">Updated</Text>
+                <Text className="idxV">{friendlyTime(it.updated_at)}</Text>
               </View>
 
-              <View className="cardBottom">
+              <View className="idxCardBottom">
                 <Button
                   size="small"
                   type="default"
@@ -226,8 +226,8 @@ export default function ReconcileIndex() {
         </View>
       )}
 
-      <View className="footerHint">
-        <Text className="muted">下拉可刷新</Text>
+      <View className="idxFooterHint">
+        <Text className="idxMuted">下拉可刷新</Text>
       </View>
     </View>
   );
