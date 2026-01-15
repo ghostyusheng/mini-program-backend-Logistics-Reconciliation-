@@ -1,83 +1,85 @@
-.page{
+/* ✅ 所有样式都锁在 .rx-login 里面，绝不污染别的页面 */
+.rx-login {
   min-height: 100vh;
   padding: 18px 14px;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  background: rgba(0,0,0,0.02);
-}
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: rgba(0, 0, 0, 0.02);
 
-.card{
-  width: 100%;
-  max-width: 520px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px 14px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-}
+  &__card {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px 14px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  }
 
-.title{
-  font-size: 18px;
-  font-weight: 900;
-  color: rgba(0,0,0,0.88);
-}
+  &__title {
+    font-size: 18px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.88);
+  }
 
-.sub{
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(0,0,0,0.55);
-}
+  &__sub {
+    margin-top: 6px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.55);
+  }
 
-.field{
-  margin-top: 14px;
-  display:flex;
-  flex-direction:column;
-  gap: 6px;
-}
+  &__field {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
 
-.label{
-  font-size: 12px;
-  color: rgba(0,0,0,0.65);
-}
+  &__label {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.65);
+  }
 
-.btns{
-  margin-top: 16px;
-}
+  &__btns {
+    margin-top: 16px;
+  }
 
-.locked{
-  margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.03);
-}
+  &__locked {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.03);
+  }
 
-.lockedValue{
-  margin-top: 6px;
-  font-size: 14px;
-  font-weight: 900;
-  color: rgba(0,0,0,0.85);
-}
+  &__lockedValue {
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.85);
+  }
 
-.hint{
-  margin-top: 6px;
-  font-size: 11px;
-  color: rgba(0,0,0,0.5);
-}
+  &__hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.5);
+  }
 
-.footer{
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(0,0,0,0.06);
-}
+  &__footer {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
 
-.tiny{
-  font-size: 11px;
-  color: rgba(0,0,0,0.5);
-}
+  &__tiny {
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.5);
+  }
 
-.mono{
-  margin-top: 6px;
-  font-size: 11px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  color: rgba(0,0,0,0.65);
+  &__mono {
+    margin-top: 6px;
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace;
+    color: rgba(0, 0, 0, 0.65);
+  }
 }
