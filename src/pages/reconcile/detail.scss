@@ -157,10 +157,15 @@
 
   /* ====== Item Popup ====== */
   .itemPopup{
-    height: 82vh;
-    display: flex;
-    flex-direction: column;
+  /* 不要在 Popup 根节点写 display */
   }
+
+.itemPopupInner{
+  height: 82vh;
+  display: flex;
+  flex-direction: column;
+}
+
 
   .popupHeader,
   .popupFooter{
