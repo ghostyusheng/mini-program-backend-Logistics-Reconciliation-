@@ -214,8 +214,7 @@ export default function ReconcileDetail() {
       }
 
       setData(res?.data || null);
-      // 如果你的详情接口返回 pics_jsonb，也顺便同步一下
-      setPics(res?.data?.pics_jsonb || res?.data?.pics || []);
+
     } catch (e) {
       console.error(e);
       toast(`获取详情失败：${e?.message || e}`);
