@@ -12,5 +12,11 @@ Containerised deployment using Docker and reverse proxy with Nginx.
 
 Delivered from requirement analysis to production-ready deployment within tight time constraints.
 
+`Frontend (Taro)->
+FastAPI->
+PostgreSQL
+->
+Docker + Nginx`
+
 <img width="1280" height="673" alt="image" src="https://github.com/user-attachments/assets/0b4f8188-62de-4aae-93f6-6523317f836a" />
 
